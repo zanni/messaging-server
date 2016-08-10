@@ -1,6 +1,6 @@
 # Messaging Server 
 
-Signal exchange MessagingServer implementation using java J2EE web application and RabbitMQ message broker
+Signal exchange implementation using java J2EE webapp, RabbitMQ message broker and websocket
 
 ## Design
 
@@ -11,13 +11,13 @@ Session model:
 - ack flag
 
 workflow 
-- User creates a session by sending HTTP request to MessagingServer "/connect" endpoint 
-- User then attempts to connect to RabbitMQ using session's data given by MessagingServer in previous HTTP response.
-- RabbitMQ use MessagingServer as authentification/authorization backend using HTTP endpoints. 
-- User create and subscribe to an auto-delete queue on RabbitMQ if MessagingServer has an active session matching {userId, listeningAddress, listeningKey}
-- MessagingServer has a listener on RabbitMQ queue creation/deletion events. When a queue is created, corresponding session is acked, when a queue is deleted, corresponding session is deleted
-- User exchange messages with another connected user by sending HTTP request to MessagingServer "/exchange" enpoint. 
-- MessagingServer then relay the message by pushing to corresponding user's queue
+- User creates a session by sending HTTP request to webapp "/connect" endpoint 
+- User then attempts to connect to RabbitMQ using session's data given by webapp in previous HTTP response.
+- RabbitMQ use webapp as authentification/authorization backend using HTTP endpoints. 
+- User create and subscribe to an auto-delete queue on RabbitMQ if webapp has an active session matching {userId, listeningAddress, listeningKey}
+- User exchange messages with another connected user by sending HTTP request to webapp "/exchange" enpoint. 
+- webapp then relay the message by pushing to corresponding user's queue
+- webapp has a listener on RabbitMQ queue creation/deletion events. When a queue is created, corresponding session is acked, when a queue is deleted, corresponding session is deleted
 
 ## Browser compatibility consideration
 
@@ -25,7 +25,7 @@ RabbitMQ can expose both Websocket and SockJS queue. SockJS is provided for comp
 
 ## Scalability consideration
 
-This was not the purpose of this demo, but such a system need a real persistence storage layer providing ACID transaction in order to persist session's. Doing so, MessagingServer application is a stateless service and therefore can be distributed using a load balancer. RabbitMQ is already a distributed technology and provide native clusterization. It can be noted that broker clusterization can be done at application layer using listeningAddress field of session model. More complexe charge repartition algorithm can therefore be implemented if required
+This was not the purpose of this demo, but such a system need a real persistence storage layer providing ACID transaction in order to persist session's. Doing so, webapp is a stateless service and therefore can be distributed using a load balancer. RabbitMQ is already a distributed technology and provide native clusterization. It can be noted that broker clusterization can be done at webapp layer using listeningAddress field of session model. More complexe charge repartition algorithm can therefore be implemented if required
 
 ## Max concurrent connection per node
 
@@ -33,16 +33,17 @@ I don't know how many concurrent connections a single rabbitmq node can handle o
 Responses could be found using tsung (https://github.com/processone/tsung) in order to simulate concurrent websocket connections
 
 ## Security 
+What's missing:
 
 Application:
-- MessagingServer endpoints should use SSL
-- MessagingServer RabbitMQAuth endpoints should implement whitelist logic on rabbitmq nodes addresses (maybe they should be in another app, not visible by internet network)
-- Non acked session should have a TTL
+- webapp endpoints should use SSL
+- SSLv3 should be disabled
+- webapp RabbitMQAuth endpoints should implement whitelist logic on rabbitmq nodes addresses (maybe they should be in another app, not visible by internet network)
+- Non acked session should have a TTL and should be deleted at TTL expiration
 
 System:
 - SSH public key authentification enable, SSH password authentification disable, custom port
 - ports 443 && 15674 opened to internet network
-
 
 ## Requirements
 
