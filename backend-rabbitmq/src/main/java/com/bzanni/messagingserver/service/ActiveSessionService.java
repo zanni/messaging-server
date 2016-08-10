@@ -4,7 +4,8 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,8 @@ import com.bzanni.messagingserver.repository.IActiveSessionRepository;
 @Service
 public class ActiveSessionService implements IActiveSessionService {
 
-	private static final Logger LOGGER = Logger.getLogger(ActiveSessionService.class);
+	private static final Logger LOGGER = LogManager
+			.getLogger(ActiveSessionService.class);
 
 	@Resource
 	private IActiveSessionRepository activeSessionRepository;
@@ -28,13 +30,15 @@ public class ActiveSessionService implements IActiveSessionService {
 	private String rabbitmqHost;
 
 	@Override
-	public ActiveSession create(String userId) throws ActiveSessionServiceException {
+	public ActiveSession create(String userId)
+			throws ActiveSessionServiceException {
 
 		// create activesession domain object
 		String listeningAddress = "http://" + rabbitmqHost + ":15674/stomp";
 		UUID randomKey = UUID.randomUUID();
 		String queueName = "queue" + "." + userId + "." + randomKey.toString();
-		ActiveSession session = new ActiveSession(userId, listeningAddress, queueName);
+		ActiveSession session = new ActiveSession(userId, listeningAddress,
+				queueName);
 
 		// TODO bertrand: find a way to declare auto-delete queue here that then
 		// will be consumed by STOMP clients
@@ -50,6 +54,25 @@ public class ActiveSessionService implements IActiveSessionService {
 			throw new ActiveSessionServiceException(e.getMessage());
 		}
 
+	}
+
+	public boolean exists(String userId) {
+		try {
+			activeSessionRepository.read(userId);
+			return true;
+		} catch (ActiveSessionRepositoryException e) {
+			return false;
+		}
+	}
+
+	public boolean checkValidity(String userId, String queueName) {
+		try {
+			ActiveSession read = activeSessionRepository.read(userId);
+
+			return read.getListeningKey().equals(queueName);
+		} catch (ActiveSessionRepositoryException e) {
+			return false;
+		}
 	}
 
 	@Override
@@ -78,11 +101,13 @@ public class ActiveSessionService implements IActiveSessionService {
 	}
 
 	@Override
-	public void exchange(String from, String to, String content) throws ActiveSessionServiceException {
+	public void exchange(String from, String to, String content)
+			throws ActiveSessionServiceException {
 		try {
 			activeSessionRepository.read(from);
 			ActiveSession toUserSession = activeSessionRepository.read(to);
-			rabbitTemplate.convertAndSend(toUserSession.getListeningKey(), content);
+			rabbitTemplate.convertAndSend(toUserSession.getListeningKey(),
+					content);
 			LOGGER.info("EX: " + from + " to " + to);
 		} catch (ActiveSessionRepositoryException e) {
 			throw new ActiveSessionServiceException(e.getMessage());

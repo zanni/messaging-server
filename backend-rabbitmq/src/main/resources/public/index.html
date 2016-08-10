@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script
-	src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <script src="//cdn.jsdelivr.net/sockjs/1.0.3/sockjs.min.js"></script>
 <script src="stomp.js"></script>
 <style>
@@ -42,106 +41,34 @@ div code {
 	font-size: 0.8em;
 }
 </style>
-<title>RabbitMQ Web STOMP Examples : Temporary Queue</title>
-<link href="main.css" rel="stylesheet" type="text/css" />
+<title>Messaging Server</title>
 </head>
 <body lang="en">
-	<h1>Messaging Server</h1>
-
-	<p id="connected"></p>
-
-	<div id="first" class="box">
-		<h2>Received</h2>
-		<div></div>
-		<form>
-			<input id="toUserId" autocomplete="off" placeholder="Recipient..."></input>
-			<input id="content" autocomplete="off" placeholder="Message body..."></input>
-			<button id="submit">Send</button>
-		</form>
-	</div>
-
-	<div id="second" class="box">
-		<h2>Logs</h2>
-		<div></div>
-	</div>
 
 
-	<script>
-		var userId = prompt("Please enter your userId");
 
-		var host = "192.168.10.74";
-		var user = "anonymous";
-		var pass = "anonymous";
+ <div id="first" class="box">
+  <h2>Received</h2>
+  <div></div>
+  <form>
+   <input id="toUserId" autocomplete="off" placeholder="Recipient..."></input> <input id="content" autocomplete="off" placeholder="Message body..."></input>
+   <button id="submit">Send</button>
+  </form>
+ </div>
 
-		$
-				.post(
-						'/connect',
-						{
-							userId : userId
-						},
-						function(data) {
+ <div id="second" class="box">
+  <h2>Logs</h2>
+  <div></div>
 
-							$('#connected')
-									.text("Connected as user: " + userId);
+  <button id="connect">Connect</button>
+  <button id="disconnect">Disconnect</button>
+  <button id="cleanRetreived">Clean retreived</button>
+  <button id="cleanLog">Clean logs</button>
+  <p id="connected"></p>
 
-							if (data.listeningAddress.indexOf("ws://") !== -1) {
-								var ws = new WebSocket(data.listeningAddress);
-							} else if (data.listeningAddress.indexOf("http://") !== -1) {
-								var ws = new SockJS(data.listeningAddress);
-							}
-							var client = Stomp.over(ws);
+ </div>
+<script src="main.js"></script>
 
-							client.debug = function(e) {
-								$('#second div').append($("<code>").text(e));
-							};
 
-							var on_connect_closure = function(topic) {
-								return function(x) {
-									id = client.subscribe("/queue/"
-											+ topic.listeningKey, function(m) {
-										console.log(m);
-										$('#first div').append(
-												$("<code>").text(m.body));
-									}, {'auto-delete' : true, 'durable' : false, 'exclusive':true});
-								};s
-							}
-							var on_error = function(e) {
-								console.log('error', e);
-								$('#second div').append($("<code>").text(e));
-							};
-							client.connect(user, pass,
-									on_connect_closure(data), on_error, '/'
-									);
-
-							$("#submit").click(function(e) {
-								e.preventDefault();
-								var toUserId = $("#toUserId").val();
-								var content = $("#content").val();
-								$.post('/exchange', {
-									fromUserId : userId,
-									toUserId : toUserId,
-									content : content
-								}, function(data) {
-									console.log(data);
-								});
-							});
-
-						}).fail(function(e) {
-					var exp = JSON.parse(e.responseText);
-					console.log('error', exp);
-					$('#second div').append($("<code>").text(exp.message));
-				});
-
-		/* $('#first form').submit(function() {
-			var text = $('#first form input').val();
-			if (text) {
-				client.send('/queue/test', {
-					'reply-to' : '/temp-queue/foo'
-				}, text);
-				$('#first form input').val("");
-			}
-			return false;
-		}); */
-	</script>
 </body>
 </html>

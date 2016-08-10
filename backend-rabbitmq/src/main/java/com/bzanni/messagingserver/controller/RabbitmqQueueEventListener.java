@@ -2,7 +2,8 @@ package com.bzanni.messagingserver.controller;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class RabbitmqQueueEventListener implements MessageListener {
 
 	private static final String QUEUE_CREATED = "queue.created";
 
-	private static final Logger LOGGER = Logger.getLogger(RabbitmqQueueEventListener.class);
+	private static final Logger LOGGER = LogManager
+			.getLogger(RabbitmqQueueEventListener.class);
 
 	@Resource
 	private IActiveSessionService activeSessionService;
@@ -33,13 +35,18 @@ public class RabbitmqQueueEventListener implements MessageListener {
 	public void onMessage(Message message) {
 
 		try {
-			String queueName = (String) message.getMessageProperties().getHeaders().get("name");
+			String routingKey = message.getMessageProperties()
+					.getReceivedRoutingKey();
+			String queueName = (String) message.getMessageProperties()
+					.getHeaders().get("name");
 
-			if (QUEUE_CREATED.equals(message.getMessageProperties().getReceivedRoutingKey())) {
+			LOGGER.debug("@rabbit >>> " + routingKey + " - " + queueName);
+
+			if (QUEUE_CREATED.equals(routingKey)) {
 
 				activeSessionService.ack(queueName);
 
-			} else if (QUEUE_DELETED.equals(message.getMessageProperties().getReceivedRoutingKey())) {
+			} else if (QUEUE_DELETED.equals(routingKey)) {
 
 				activeSessionService.delete(queueName);
 

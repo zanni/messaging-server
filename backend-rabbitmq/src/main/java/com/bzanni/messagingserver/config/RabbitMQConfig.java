@@ -2,7 +2,6 @@ package com.bzanni.messagingserver.config;
 
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +33,8 @@ public class RabbitMQConfig {
 
 	@Bean
 	public ConnectionFactory connectionFactory() {
-		CachingConnectionFactory connectionFactory = new CachingConnectionFactory(this.getRabbitmqHost(),
-				this.getRabbitmqPort());
+		CachingConnectionFactory connectionFactory = new CachingConnectionFactory(
+				this.getRabbitmqHost(), this.getRabbitmqPort());
 		connectionFactory.setUsername(this.getRabbitmqUsername());
 		connectionFactory.setPassword(this.getRabbitmqPassword());
 		return connectionFactory;
@@ -45,13 +44,6 @@ public class RabbitMQConfig {
 	public MessageConverter jsonMessageConverter() {
 		Jackson2JsonMessageConverter jsonMessageConverter = new Jackson2JsonMessageConverter();
 		return jsonMessageConverter;
-	}
-
-	@Bean
-	public RabbitTemplate rabbitTemplate() {
-		RabbitTemplate template = new RabbitTemplate(connectionFactory());
-		template.setMessageConverter(jsonMessageConverter());
-		return template;
 	}
 
 	public String getRabbitmqHost() {

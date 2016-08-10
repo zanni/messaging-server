@@ -10,6 +10,18 @@ public interface IActiveSessionService {
 	 * @throws ActiveSessionServiceException
 	 */
 	public ActiveSession create(String userId) throws ActiveSessionServiceException;
+	
+	/**
+	 * @param userId
+	 * @return
+	 */
+	public boolean exists(String userId);
+	
+	/**
+	 * @param userId
+	 * @return
+	 */
+	public boolean checkValidity(String userId, String queueName);
 
 	/**
 	 * @param queueName
