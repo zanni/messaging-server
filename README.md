@@ -4,19 +4,20 @@ Signal exchange MessagingServer implementation using java J2EE web application a
 
 ## Design
 
-session model:
+Session model:
 - userId
 - listeningAddress: where to establish web stomp connection
 - listeningKey: queue name user is allowed to subscribe to
 - ack flag
 
-User creates a session by sending HTTP request to MessagingServer "/connect" endpoint 
-User then attempts to connect to RabbitMQ using session's data given by MessagingServer in previous HTTP response. 
-RabbitMQ use MessagingServer as authentification/authorization backend using HTTP endpoints. 
-User create and subscribe to an auto-delete queue on RabbitMQ if MessagingServer has an active session matching {userId, listeningAddress, listeningKey}
-MessagingServer has a listener on RabbitMQ queue creation/deletion events. When a queue is created, corresponding session is acked, when a queue is deleted, corresponding session is deleted
-User exchange messages with another connected user by sending HTTP request to MessagingServer "/exchange" enpoint. 
-MessagingServer then relay the message by pushing to corresponding user's queue
+workflow 
+- User creates a session by sending HTTP request to MessagingServer "/connect" endpoint 
+- User then attempts to connect to RabbitMQ using session's data given by MessagingServer in previous HTTP response.
+- RabbitMQ use MessagingServer as authentification/authorization backend using HTTP endpoints. 
+- User create and subscribe to an auto-delete queue on RabbitMQ if MessagingServer has an active session matching {userId, listeningAddress, listeningKey}
+- MessagingServer has a listener on RabbitMQ queue creation/deletion events. When a queue is created, corresponding session is acked, when a queue is deleted, corresponding session is deleted
+- User exchange messages with another connected user by sending HTTP request to MessagingServer "/exchange" enpoint. 
+- MessagingServer then relay the message by pushing to corresponding user's queue
 
 ## Browser compatibility consideration
 
@@ -52,17 +53,16 @@ Following dependencies (with tested versions) are required to launch demo env:
  - Chef DK (0.16.28)
  - VirtualBox (4.3)
 
-
-
 ## Demo env
 
 Create an ubuntu trusty64 VM using vagrant with RabbitMQ and MessagingServer provisioned
+
 Host and VM are linked using a private network on 24/192.168.33.0, with host 192.168.33.1 and VM 192.168.33.10.
 
 	
 	#!/bin/sh
 	git clone https://github.com/zanni/messaging-server.git
-	cd devops
+	cd messaging-server/devops
 	berks vendor; berks install
 	cd env-demo
 	vagrant up
