@@ -4,6 +4,6 @@ jdk:
 sudo: false
 env:
   global:
-    - REPO="zanni / messaging-server"
+    - REPO="zanni/messaging-server"
     - CI_HOME=`pwd`/$REPO
 script: build.sh
