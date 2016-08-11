@@ -64,7 +64,8 @@ Application:
 - SSLv3 should be disabled
 - webapp RabbitMQAuth endpoints should implement whitelist logic on rabbitmq nodes addresses (maybe they should be in another app, not visible by internet network)
 - webapp RabbitMQAuth endpoints should use HTTP POST in order to avoid credential to be written in logs
-- Non acked session should have a TTL and should be deleted at TTL expiration
+- Non acked session should have a TTL and should be deleted at TTL expiration. A StrangeBehavior flag should be raised
+- Acked session without corresponding RabbitMQ queue should be deleted using batch processing. A StrangeBehavior flag should be raised
 
 System:
 - SSH public key authentification enable, SSH password authentification disable, custom SSH port
