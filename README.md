@@ -11,25 +11,26 @@ This prototype permits communications 1 to 4  between Client A, Client B and App
 
 ## Implementation
 
-Session object model:
-- userId
-- listeningAddress: web STOMP host address
-- listeningKey: routing key user is allowed to subscribe to
-- ack flag: session is acked when web STOMP connection have been settled between MessergingServer and User
+**Session Model** {userId, listeningAddress, listeningKey, ack} with:
+- **userId**: user id (authentification and authorization of user connecting to MessagingServer is out of the scope of this project)
+- **listeningAddress**: web STOMP host address
+- **listeningKey**: routing key user is allowed to subscribe to
+- **ack**: session is acked when web STOMP connection have been settled between MessagingServer and User
 
-Workflow:
+**Workflow**:
 - User inits connection by sending HTTP POST request to "/connect" endpoint, providing {userId}. A session is generated with a random {listeningKey} and an available {listeningAddress}.
 - User then attempts to connect to STOMP "/ws" endpoint using session's data given by webapp in previous HTTP response. If an active session matches {userId, listeningAddress, listeningKey}, an auto-delete exclusive queue is created and user subscribe to that queue
-- User exchanges messages with others connected users by sending HTTP POST request to "/exchange" enpoint. Messages are relayed by pushing on correspondif user queue
+- User exchanges messages with others connected users by sending HTTP POST request to "/exchange" enpoint. Messages are relayed by pushing on corresponding user queue
 - User disconnects by either sending HTTP POST request to "/disconnect" endpoint or broking websocket TCP connection
-- webapp has a listener on RabbitMQ queue creation/deletion events. When a queue is created, corresponding session is acked, when a queue is deleted, corresponding session is deleted
+- Queue creation/deletion events are monitored. When a queue is created, corresponding session is acked, when a queue is deleted, corresponding session is deleted
 
 ## Technologies
-- Java J2EE Spring webapp with embedded Jetty
-- RabbitMQ message broker
+- Java J2EE (8) Spring (4.x) webapp with embedded Jetty
+- RabbitMQ Message Broker (3.6.x)
 - Chef/Vagrant for devops purpose
 
 ## Browser Compatibility 
+tested with Chrome 52 & Safari 9
 
 Refering to: http://caniuse.com/#feat=websockets, More than 90% of users (desktop/mobile) worldwide (96% in France) use a browser compatible with websocket HTML5 API and therefore can access MessagingServer using websocket
 
@@ -109,10 +110,3 @@ You need to create application.properties file in {messagingserver.home} folder 
 Webapp application use --messagingserver.home={messagingserver.home} as program input
 
 VM can be suspended,resumed,destroyed using 'vagrant suspend', 'vagrant resume' and 'vagrant destroy' CLI command
-
-	
-
-
-
-
-
