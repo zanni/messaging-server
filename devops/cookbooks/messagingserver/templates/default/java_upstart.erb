@@ -22,7 +22,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Description of the service"
 NAME=<%= @name %>
 DAEMON=/usr/bin/java 
-DAEMON_ARGS="-jar --messagingserver.home=<%= node['messagingserver']['home'] %> <%= node['messagingserver']['home'] %>/<%= @commande %>"
+DAEMON_ARGS="-jar  <%= node['messagingserver']['bin'] %>/<%= @commande %> --messagingserver.home=<%= node['messagingserver']['home'] %>"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 

@@ -1,10 +1,7 @@
 name        "messaging_server_rabbitmq"
 description "Configuration for messaging-server rabbitmq nodes"
 
-run_list    "recipe[rabbitmq]",
-			"recipe[rabbitmq::plugin_management]",
-			"recipe[rabbitmq::user_management]",
-			"recipe[rabbitmq::community_plugins]"
+run_list    "recipe[messagingserver::rabbitmq]"
 
 default_attributes(
 	:rabbitmq => {
@@ -16,12 +13,7 @@ default_attributes(
 		:additional_rabbit_configs => {
 			:auth_backends => "[rabbit_auth_backend_internal,rabbit_auth_backend_http]"
 		},
-		:conf => {
-			:rabbitmq_auth_backend_http => '[{http_method,post},
-    {user_path,"http://192.168.33.1:8080/auth/user"},
-    {vhost_path,    "http://192.168.33.1:8080/auth/vhost"},
-    {resource_path, "http://192.168.33.1:8080/auth/resource"}]'
-		},
+	
 		:enabled_plugins => [
 			'rabbitmq_management',
 			'rabbitmq_management_visualiser',
