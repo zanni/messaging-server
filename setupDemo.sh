@@ -1,5 +1,5 @@
 #!/bin/sh
-cd messaging-server/devops
+cd devops
 berks vendor; berks install
 cd env-demo
 vagrant up
