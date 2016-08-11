@@ -20,17 +20,15 @@ Session object model:
 - ack flag: session is acked when web STOMP connection have been settled between MessergingServer and User
 
 Workflow:
-- User creates a session by sending HTTP POST request to webapp "/connect" endpoint. webapp generate a random {listeningKey} and find an available RabbitMQ node {listeningAddress}.
-- User then attempts to connect to RabbitMQ using session's data given by webapp in previous HTTP response.
-- RabbitMQ use webapp as authentification/authorization backend using HTTP endpoints. 
-- User create and subscribe to an auto-delete queue on RabbitMQ if webapp has an active session matching {userId, listeningAddress, listeningKey}
-- User exchanges messages with others connected users by sending HTTP POST request to webapp "/exchange" enpoint. 
-- webapp then relay the message by pushing to corresponding user's queue
+- User inits connection by sending HTTP POST request to "/connect" endpoint, providing {userId}. A session is generated with a random {listeningKey} and an available {listeningAddress}.
+- User then attempts to connect to STOMP "/ws" endpoint using session's data given by webapp in previous HTTP response. If an active session matches {userId, listeningAddress, listeningKey}, an auto-delete exclusive queue is created and user subscribe to that queue
+- User exchanges messages with others connected users by sending HTTP POST request to "/exchange" enpoint. Messages are relayed by pushing on correspondif user queue
+- User disconnects by either sending HTTP POST request to "/disconnect" endpoint or broking websocket TCP connection
 - webapp has a listener on RabbitMQ queue creation/deletion events. When a queue is created, corresponding session is acked, when a queue is deleted, corresponding session is deleted
 
 ## Browser compatibility consideration
 
-Refering to: http://caniuse.com/#feat=websockets, More than 90% of users (desktop/mobile) use a browser compatible with websocket HTML5 API and therefore can access MessagingServer using websocket
+Refering to: http://caniuse.com/#feat=websockets, More than 90% of users (desktop/mobile) worldwide (96% in France) use a browser compatible with websocket HTML5 API and therefore can access MessagingServer using websocket
 
 RabbitMQ can expose both Websocket and SockJS enpoints. SockJS is provided for compatibility purpose with old browser as it fallback to long pooling/pooling when websocket is unavailable.
 
