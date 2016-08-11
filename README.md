@@ -2,16 +2,14 @@
 [![Build Status](https://travis-ci.org/zanni/messaging-server.svg?branch=master)](https://travis-ci.org/zanni/messaging-server)
 
 WebRTC compliant signal exchange implementation based on HTTP and STOMP protocols
-[![WebRTC](https://github.com/zanni/messaging-server/raw/master/webrtc.png)](webrtc)
+
+<p align="center">
+  <img src="https://github.com/zanni/messaging-server/raw/master/webrtc.png?raw=true" alt="Sublime's custom image"/>
+</p>
 
 This prototype permits communications 1 to 4  between Client A, Client B and Application Server, in the previous schema
 
-## Technologies
-- Java J2EE Spring webapp with embedded Jetty
-- RabbitMQ message broker
-- Chef/Vagrant for devops purpose
-
-## Implementation design
+## Implementation
 
 Session object model:
 - userId
@@ -26,7 +24,12 @@ Workflow:
 - User disconnects by either sending HTTP POST request to "/disconnect" endpoint or broking websocket TCP connection
 - webapp has a listener on RabbitMQ queue creation/deletion events. When a queue is created, corresponding session is acked, when a queue is deleted, corresponding session is deleted
 
-## Browser compatibility consideration
+## Technologies
+- Java J2EE Spring webapp with embedded Jetty
+- RabbitMQ message broker
+- Chef/Vagrant for devops purpose
+
+## Browser Compatibility 
 
 Refering to: http://caniuse.com/#feat=websockets, More than 90% of users (desktop/mobile) worldwide (96% in France) use a browser compatible with websocket HTML5 API and therefore can access MessagingServer using websocket
 
@@ -34,21 +37,25 @@ RabbitMQ can expose both Websocket and SockJS enpoints. SockJS is provided for c
 
 Disabling SSLv3 can also be problematic for old browser.
 
-## Scalability consideration
+## Horizontal Scalability
 
 This was not the purpose of this demo, but such a system needs a real persistence storage layer providing ACID transactions (PostgresSQL...) in order to persist live sessions. Doing so, webapp is a stateless service and therefore can easily be distributed using a load balancer (HAProxy ...). 
 
 As one queue and one websocket connection is created per concurrent user, scaling RabbitMQ is the real challenge of this architecture. RabbitMQ is already a distributed technology and provide native clusterization. However, I don't know how java rabbitmq driver deal with resource allocation in a cluster environment, but a simple round-robin might not be enought. Therefore, RabbitMQ clusterization can also be done at application layer using 'listeningAddress' field of session's model. More complexe resource allocation algorithm can be implemented, for example by implementing a MAX_CONCURRENT_CONNECTION by node. This design has several avantages. As RabbitMQ nodes do not form a native cluster, application can run over heterogeneous version of RabbitMQ nodes. Moreover, it might be easier to implement live session migration from one RabbitMQ node to another, and therefore would permits live rabbitmq cluster downscaling/upscaling
 
 Distributed MessagingServer infrastructure example:
-[![Distributed MessagingServer infrastructure example](https://github.com/zanni/messaging-server/raw/master/messagingserver_distributed.png)](messagingserver_distributed)
 
-## Max concurrent connection per node
+<p align="center">
+  <img src="https://github.com/zanni/messaging-server/raw/master/messagingserver_distributed.png?raw=true" alt="Sublime's custom image"/>
+</p>
+
+## Max Concurrent Connection
 
 I don't know how many concurrent connections a single rabbitmq node can handle or if RAM or file descriptors will be the bottleneck.
 Responses could be found using tsung (https://github.com/processone/tsung) in order to simulate concurrent websocket connections
 
 ## Security 
+
 What's missing:
 
 Application:
