@@ -15,17 +15,30 @@ import com.bzanni.messagingserver.domain.Message;
 import com.bzanni.messagingserver.repository.ActiveSessionRepositoryException;
 import com.bzanni.messagingserver.repository.IActiveSessionRepository;
 
+/**
+ * @author bzanni
+ *
+ */
 @Service
 public class ActiveSessionService implements IActiveSessionService {
 
 	private static final Logger LOGGER = LogManager.getLogger(ActiveSessionService.class);
 
+	/**
+	 * active session persistence repository
+	 */
 	@Resource
 	private IActiveSessionRepository activeSessionRepository;
 
+	/**
+	 * rabbitmq connection
+	 */
 	@Resource
 	private RabbitTemplate rabbitTemplate;
 
+	/**
+	 * rabbitmq host ip
+	 */
 	@Value("${rabbitmq_host}")
 	private String rabbitmqHost;
 
@@ -33,14 +46,12 @@ public class ActiveSessionService implements IActiveSessionService {
 	public ActiveSession create(String userId) throws ActiveSessionServiceException {
 
 		// create activesession domain object
+		// dummy find available rabbit node
 		String listeningAddress = "http://" + rabbitmqHost + ":15674/stomp";
+		// gen random based listeningKey
 		UUID randomKey = UUID.randomUUID();
-		String queueName = "queue" + "." + userId + "." + randomKey.toString();
-		ActiveSession session = new ActiveSession(userId, listeningAddress, queueName);
-
-		// Queue queue = new Queue(queueName, false, true, false);
-		// rabbitMQConfig.getAdmin().setAutoStartup(false);
-		// rabbitMQConfig.getAdmin().declareQueue(queue);
+		String listeningKey = "queue" + "." + userId + "." + randomKey.toString();
+		ActiveSession session = new ActiveSession(userId, listeningAddress, listeningKey);
 
 		try {
 			activeSessionRepository.create(session);
@@ -49,9 +60,9 @@ public class ActiveSessionService implements IActiveSessionService {
 		} catch (ActiveSessionRepositoryException e) {
 			throw new ActiveSessionServiceException(e.getMessage());
 		}
-
 	}
 
+	@Override
 	public boolean exists(String userId) {
 		try {
 			activeSessionRepository.read(userId);
@@ -61,11 +72,11 @@ public class ActiveSessionService implements IActiveSessionService {
 		}
 	}
 
-	public boolean checkValidity(String userId, String queueName) {
+	@Override
+	public boolean checkValidity(String userId, String listeningKey) {
 		try {
 			ActiveSession read = activeSessionRepository.read(userId);
-
-			return read.getListeningKey().equals(queueName);
+			return read.getListeningKey().equals(listeningKey);
 		} catch (ActiveSessionRepositoryException e) {
 			return false;
 		}

@@ -1,5 +1,11 @@
 package com.bzanni.messagingserver.domain;
 
+/**
+ * POJO defining dummy message exchange objects
+ * 
+ * @author bzanni
+ *
+ */
 public class Message {
 	private String from;
 	private String content;

@@ -15,6 +15,10 @@ import com.bzanni.messagingserver.service.IActiveSessionService;
  * 
  * Listener on rabbitmq internal queue event (create/delete)
  * 
+ * When a queue is created in rabbitmq, corresponding session is acked
+ * 
+ * When a queue is deleted in rabbitmq, corresponing session is deleted
+ * 
  * @author bzanni
  *
  */

@@ -1,32 +1,46 @@
 # Messaging Server 
 [![Build Status](https://travis-ci.org/zanni/messaging-server.svg?branch=master)](https://travis-ci.org/zanni/messaging-server)
 
-Signal exchange implementation using java J2EE webapp, RabbitMQ message broker and websocket
+WebRTC compliant signal exchange implementation based on HTTP and STOMP protocols
+[![WebRTC](https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Etablissement_d%27une_connexion_par_WebRTC.svg/661px-Etablissement_d%27une_connexion_par_WebRTC.svg.png)](https://fr.wikipedia.org/wiki/WebRTC#/media/File:Etablissement_d%27une_connexion_par_WebRTC.svg)
 
-## Design
+This prototype permits communications 1 to 4  between Client A, Client B and Application Server, in the previous schema
 
-Session model:
+## Technologies
+- Java J2EE Spring webapp with embedded Jetty
+- RabbitMQ message broker
+- Chef/Vagrant for devops purpose
+
+## Implementation design
+
+Session object model:
 - userId
-- listeningAddress: where to establish web stomp connection
-- listeningKey: queue name user is allowed to subscribe to
-- ack flag
+- listeningAddress: web STOMP host address
+- listeningKey: routing key user is allowed to subscribe to
+- ack flag: session is acked when web STOMP connection have been settled between MessergingServer and User
 
-workflow 
-- User creates a session by sending HTTP request to webapp "/connect" endpoint 
+Workflow:
+- User creates a session by sending HTTP POST request to webapp "/connect" endpoint. webapp generate a random {listeningKey} and find an available RabbitMQ node {listeningAddress}.
 - User then attempts to connect to RabbitMQ using session's data given by webapp in previous HTTP response.
 - RabbitMQ use webapp as authentification/authorization backend using HTTP endpoints. 
 - User create and subscribe to an auto-delete queue on RabbitMQ if webapp has an active session matching {userId, listeningAddress, listeningKey}
-- User exchange messages with another connected user by sending HTTP request to webapp "/exchange" enpoint. 
+- User exchanges messages with others connected users by sending HTTP POST request to webapp "/exchange" enpoint. 
 - webapp then relay the message by pushing to corresponding user's queue
 - webapp has a listener on RabbitMQ queue creation/deletion events. When a queue is created, corresponding session is acked, when a queue is deleted, corresponding session is deleted
 
 ## Browser compatibility consideration
 
-RabbitMQ can expose both Websocket and SockJS queue. SockJS is provided for compatibility purpose with old browser as it fallback to long pooling/pooling when websocket is unavailable
+Refering to: http://caniuse.com/#feat=websockets, More than 90% of users (desktop/mobile) use a browser compatible with websocket HTML5 API and therefore can access MessagingServer using websocket
+
+RabbitMQ can expose both Websocket and SockJS enpoints. SockJS is provided for compatibility purpose with old browser as it fallback to long pooling/pooling when websocket is unavailable.
+
+Disabling SSLv3 can also be problematic for old browser.
 
 ## Scalability consideration
 
-This was not the purpose of this demo, but such a system need a real persistence storage layer providing ACID transaction in order to persist session's. Doing so, webapp is a stateless service and therefore can be distributed using a load balancer. RabbitMQ is already a distributed technology and provide native clusterization. It can be noted that broker clusterization can be done at webapp layer using listeningAddress field of session model. More complexe charge repartition algorithm can therefore be implemented if required
+This was not the purpose of this demo, but such a system needs a real persistence storage layer providing ACID transactions (PostgresSQL...) in order to persist live sessions. Doing so, webapp is a stateless service and therefore can easily be distributed using a load balancer (HAProxy ...). 
+
+As one queue and one websocket connection is created per concurrent user, scaling RabbitMQ is the real challenge of this architecture. RabbitMQ is already a distributed technology and provide native clusterization. However, I don't know how java rabbitmq driver deal with resource allocation in a cluster environment, but a simple round-robin might not be enought. Therefore, RabbitMQ clusterization can also be done at application layer using 'listeningAddress' field of session's model. More complexe resource allocation algorithm can be implemented, for example by implementing a MAX_CONCURRENT_CONNECTION by node. This design has several avantages. As RabbitMQ nodes do not form a native cluster, application can run over heterogeneous version of RabbitMQ nodes. Moreover, it might be easier to implement live session migration from one RabbitMQ node to another, and therefore would permits live rabbitmq cluster downscaling/upscaling
 
 ## Max concurrent connection per node
 
@@ -40,13 +54,14 @@ Application:
 - webapp endpoints should use SSL
 - SSLv3 should be disabled
 - webapp RabbitMQAuth endpoints should implement whitelist logic on rabbitmq nodes addresses (maybe they should be in another app, not visible by internet network)
+- webapp RabbitMQAuth endpoints should use HTTP POST in order to avoid credential to be written in logs
 - Non acked session should have a TTL and should be deleted at TTL expiration
 
 System:
-- SSH public key authentification enable, SSH password authentification disable, custom port
-- ports 443 && 15674 opened to internet network
+- SSH public key authentification enable, SSH password authentification disable, custom SSH port
+- firewall: only ports 443 && 15674 opened to internet network
 
-## Requirements
+## Demo env
 
 Following dependencies (with tested versions) are required to launch demo env:
  - Git (2.9.2)
@@ -55,18 +70,39 @@ Following dependencies (with tested versions) are required to launch demo env:
  - Chef DK (0.16.28)
  - VirtualBox (4.3)
 
-## Demo env
+The following lines should be executed in a SHELL env in order to setup demo env. It creates an ubuntu trusty64 VM using vagrant with 512m EAM, provisioned and running RabbitMQ/MessagingServer. Host and VM are linked using a private network on 24/192.168.33.0, with host 192.168.33.1 and VM 192.168.33.10.
 
-Create an ubuntu trusty64 VM using vagrant with RabbitMQ and MessagingServer provisioned
+```sh
+git clone https://github.com/zanni/messaging-server.git
+cd messaging-server; chmod +x setupDemo.sh; ./setupDemo.sh
+```
 
-Host and VM are linked using a private network on 24/192.168.33.0, with host 192.168.33.1 and VM 192.168.33.10.
+MessagingServer should be accessible in a browser at http://192.168.33.10:8080/
+
+VM can be suspended,resumed,destroyed using 'vagrant suspend', 'vagrant resume' and 'vagrant destroy' CLI command
+
+## Dev env
+
+Following dependencies (with tested versions) are required to launch dev env:
+ - Git (2.9.2)
+ - Vagrant (1.7.1)
+ - vagrant-omnibus (1.4.1)
+ - Chef DK (0.16.28)
+ - VirtualBox (4.3)
+
+The following lines should be executed in a SHELL env in order to setup dev env. It creates an ubuntu trusty64 VM using vagrant with 512m EAM, provisioned and running RabbitMQ. Host and VM are linked using a private network on 24/192.168.33.0, with host 192.168.33.1 and VM 192.168.33.10.
+
+```sh
+git clone https://github.com/zanni/messaging-server.git
+cd messaging-server; chmod +x setupDev.sh; ./setupDev.sh
+```
+
+You need to create application.properties file in {messagingserver.home} folder in order to run webapp
+Webapp application use --messagingserver.home={messagingserver.home} as program input
+
+VM can be suspended,resumed,destroyed using 'vagrant suspend', 'vagrant resume' and 'vagrant destroy' CLI command
+
 	
-	git clone https://github.com/zanni/messaging-server.git
-	cd messaging-server; chmod +x setupDemo.sh; ./setupDemo.sh
-
-
-MessagingServer should be accessible in a browser at
-	http://192.168.33.10:8080/
 
 
 

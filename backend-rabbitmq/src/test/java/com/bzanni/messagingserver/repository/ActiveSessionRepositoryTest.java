@@ -16,6 +16,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.bzanni.messagingserver.ApplicationUnitTest;
 import com.bzanni.messagingserver.domain.ActiveSession;
 
+/**
+ * Dummy tests on session repository
+ * 
+ * @author bzanni
+ *
+ */
 @ContextConfiguration(classes = ApplicationUnitTest.class)
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)

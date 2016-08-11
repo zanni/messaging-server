@@ -16,6 +16,8 @@ import com.bzanni.messagingserver.service.IActiveSessionService;
  * Rest HTTP Json controller acting as rabbitmq authentification/authorization
  * backend
  * 
+ * RabbitMQ http auth module should make HTTP POST request
+ * 
  * @author bzanni
  *
  */
@@ -26,6 +28,8 @@ public class RabbitMQAuthController {
 	private IActiveSessionService activeSessionService;
 
 	/**
+	 * authenticate user
+	 * 
 	 * GET - /auth/user
 	 * 
 	 * @param userId
@@ -48,6 +52,8 @@ public class RabbitMQAuthController {
 	}
 
 	/**
+	 * authorization on vhost (not used in this application as one vhost is used)
+	 * 
 	 * GET - /auth/user
 	 * 
 	 * @param userId
@@ -62,6 +68,8 @@ public class RabbitMQAuthController {
 	}
 
 	/**
+	 * authorization on resource (queue/exchange) creation/configuration/usage
+	 * 
 	 * GET - /auth/resource
 	 * 
 	 * @param userId

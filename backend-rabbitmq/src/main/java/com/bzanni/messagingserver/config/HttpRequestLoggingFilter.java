@@ -15,6 +15,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+/**
+ * 
+ * HTTP request logger implemented as spring chained filter
+ * 
+ * @author bzanni
+ *
+ */
 @Component
 public class HttpRequestLoggingFilter implements Filter {
 

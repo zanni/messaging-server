@@ -7,6 +7,12 @@ import org.springframework.stereotype.Service;
 
 import com.bzanni.messagingserver.domain.ActiveSession;
 
+/**
+ * Thread safe In-Memory implementation of IActiveSessionRepository
+ * 
+ * @author bzanni
+ *
+ */
 @Service
 public class ActiveSessionRepository implements IActiveSessionRepository {
 
@@ -19,15 +25,6 @@ public class ActiveSessionRepository implements IActiveSessionRepository {
 			throw new ActiveSessionRepositoryException("already taken userid");
 		}
 		repository.put(sessionToCreate.getUserId(), sessionToCreate);
-	}
-
-	public void ack(String userId) throws ActiveSessionRepositoryException {
-		ActiveSession session = repository.get(userId);
-		if (session == null) {
-			throw new ActiveSessionRepositoryException("user not found");
-		}
-		session.setAcked(true);
-		repository.put(userId, session);
 	}
 
 	@Override
@@ -56,5 +53,4 @@ public class ActiveSessionRepository implements IActiveSessionRepository {
 		}
 		repository.remove(session.getUserId());
 	}
-
 }

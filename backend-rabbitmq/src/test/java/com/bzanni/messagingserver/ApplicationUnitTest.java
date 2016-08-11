@@ -12,6 +12,12 @@ import com.bzanni.messagingserver.controller.RabbitMQAuthController;
 import com.bzanni.messagingserver.controller.RabbitmqQueueEventListener;
 import com.bzanni.messagingserver.service.ActiveSessionService;
 
+/**
+ * Spring boot test main class
+ * 
+ * @author bzanni
+ *
+ */
 @SpringBootApplication
 @ComponentScan(basePackages = { "com.bzanni.messagingserver" }, excludeFilters = {
 		@ComponentScan.Filter(value = RabbitMQConfig.class, type = FilterType.ASSIGNABLE_TYPE),

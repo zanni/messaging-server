@@ -1,5 +1,11 @@
 package com.bzanni.messagingserver.domain;
 
+/**
+ * POJO defining session model
+ * 
+ * @author bzanni
+ *
+ */
 public class ActiveSession {
 
 	private String userId;

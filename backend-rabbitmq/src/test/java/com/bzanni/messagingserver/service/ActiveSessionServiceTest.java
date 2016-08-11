@@ -10,8 +10,16 @@ import com.bzanni.messagingserver.domain.ActiveSession;
 import com.bzanni.messagingserver.repository.ActiveSessionRepository;
 import com.bzanni.messagingserver.repository.ActiveSessionRepositoryException;
 
-//@RunWith(SpringRunner.class)
-//@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+/**
+ * Dummy tests on session repository
+ * 
+ * Cannot be executed in travis because it require a running rabbitmq
+ * 
+ * @author bzanni
+ *
+ */
+// @RunWith(SpringRunner.class)
+// @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ActiveSessionServiceTest {
 
 	@Resource

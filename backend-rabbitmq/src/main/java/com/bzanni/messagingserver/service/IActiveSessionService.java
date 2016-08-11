@@ -5,23 +5,30 @@ import com.bzanni.messagingserver.domain.ActiveSession;
 public interface IActiveSessionService {
 
 	/**
+	 * Create and return user's ActiveSession
+	 * 
 	 * @param userId
 	 * @return
 	 * @throws ActiveSessionServiceException
 	 */
 	public ActiveSession create(String userId) throws ActiveSessionServiceException;
-	
+
 	/**
+	 * Return true if user is linked to an active session
+	 * 
 	 * @param userId
 	 * @return
 	 */
 	public boolean exists(String userId);
-	
+
 	/**
+	 * Return true if user is linked to an active session corresponding to the
+	 * given listeningKey
+	 * 
 	 * @param userId
 	 * @return
 	 */
-	public boolean checkValidity(String userId, String queueName);
+	public boolean checkValidity(String userId, String listeningKey);
 
 	/**
 	 * @param queueName
