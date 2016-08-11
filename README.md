@@ -7,6 +7,12 @@ WebRTC compliant signal exchange implementation based on HTTP and STOMP protocol
   <img src="https://github.com/zanni/messaging-server/raw/master/webrtc.png?raw=true" alt="Sublime's custom image"/>
 </p>
 
+	1: User A send message M for User B to server S
+	2: S relay M to B
+	3: B send response M2 for A to S
+	4: S relay M2 to A
+	5/6: Bidirectionnal peer connections are established
+
 This prototype permits communications 1 to 4  between Client A, Client B and Application Server, in the previous schema
 
 ## Implementation
