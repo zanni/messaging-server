@@ -30,10 +30,23 @@ end
 template "/etc/init.d/messagingserver" do
 	source "java_upstart.erb"
 	action :create
+  mode '077'
 	variables({
 	 :name => "messagingserver",
-	 :commande => "#{node['messagingserver']['bin']}/RabbitMQMessagingServer.jar -Dmessagingserver.home=#{node['messagingserver']['home']}",
+	 :commande => "#{node['messagingserver']['bin']}/RabbitMQMessagingServer.jar",
 	 :log => "messagingserver.log"
 	})
 end
+
+service "messagingserver" do
+  supports :start => true, :stop => true
+  action :nothing
+end
+
+bash "start service" do
+      user "root"
+      code <<-EOH
+      sudo service messagingserver start
+      EOH
+    end
 

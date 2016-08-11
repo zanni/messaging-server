@@ -60,14 +60,9 @@ Following dependencies (with tested versions) are required to launch demo env:
 Create an ubuntu trusty64 VM using vagrant with RabbitMQ and MessagingServer provisioned
 
 Host and VM are linked using a private network on 24/192.168.33.0, with host 192.168.33.1 and VM 192.168.33.10.
-
 	
-	#!/bin/sh
 	git clone https://github.com/zanni/messaging-server.git
-	cd messaging-server/devops
-	berks vendor; berks install
-	cd env-demo
-	vagrant up
+	cd messaging-server; chmod +x setupDemo.sh; ./setupDemo.sh
 
 
 MessagingServer should be accessible in a browser at
