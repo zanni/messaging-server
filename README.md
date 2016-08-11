@@ -13,7 +13,7 @@ WebRTC compliant signal exchange implementation based on HTTP and STOMP protocol
 	4: S relay M2 to A
 	5/6: Bidirectionnal peer connections are established
 
-This prototype permits communications 1 to 4  between Client A, Client B and Application Server, in the previous schema
+This prototype permits communications 1 to 4
 
 ## Implementation
 
@@ -26,7 +26,7 @@ This prototype permits communications 1 to 4  between Client A, Client B and App
 **Workflow**:
 - User inits connection by sending HTTP POST request to "/connect" endpoint, providing {userId}. A session is generated with a random {listeningKey} and an available {listeningAddress}.
 - User then attempts to connect to STOMP "/ws" endpoint using session's data given by webapp in previous HTTP response. If an active session matches {userId, listeningAddress, listeningKey}, an auto-delete exclusive queue is created and user subscribe to that queue
-- User exchanges messages with others connected users by sending HTTP POST request to "/exchange" enpoint. Messages are relayed by pushing on corresponding user queue
+- User exchanges messages with others connected users by sending HTTP POST requestS to "/exchange" enpoint. Messages are relayed by pushing on corresponding users queues
 - User disconnects by either sending HTTP POST request to "/disconnect" endpoint or broking websocket TCP connection
 - Queue creation/deletion events are monitored. When a queue is created, corresponding session is acked, when a queue is deleted, corresponding session is deleted
 
@@ -56,7 +56,7 @@ Distributed MessagingServer infrastructure example:
   <img src="https://github.com/zanni/messaging-server/raw/master/messagingserver_distributed.png?raw=true" alt="Sublime's custom image"/>
 </p>
 
-## Max Concurrent Connection
+## Max Concurrent Connections
 
 I don't know how many concurrent connections a single rabbitmq node can handle or if RAM or file descriptors will be the bottleneck.
 Responses could be found using tsung (https://github.com/processone/tsung) in order to simulate concurrent websocket connections
@@ -65,7 +65,7 @@ Responses could be found using tsung (https://github.com/processone/tsung) in or
 
 What's missing:
 
-Application:
+**Application**:
 - webapp endpoints should use SSL
 - SSLv3 should be disabled
 - webapp RabbitMQAuth endpoints should implement whitelist logic on rabbitmq nodes addresses (maybe they should be in another app, not visible by internet network)
@@ -73,7 +73,7 @@ Application:
 - Non acked session should have a TTL and should be deleted at TTL expiration. A StrangeBehavior flag should be raised
 - Acked session without corresponding RabbitMQ queue should be deleted using batch processing. A StrangeBehavior flag should be raised
 
-System:
+**System**:
 - SSH public key authentification enable, SSH password authentification disable, custom SSH port
 - firewall: only ports 443 && 15674 opened to internet network
 
