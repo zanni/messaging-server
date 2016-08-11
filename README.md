@@ -1,4 +1,5 @@
 # Messaging Server 
+[![Build Status](https://travis-ci.org/zanni/messaging-server.svg?branch=master)](https://travis-ci.org/zanni/messaging-server)
 
 Signal exchange implementation using java J2EE webapp, RabbitMQ message broker and websocket
 
