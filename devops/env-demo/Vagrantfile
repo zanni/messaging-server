@@ -17,13 +17,15 @@ Vagrant.configure(2) do |config|
 
   config.omnibus.install_url = "https://www.chef.io/chef/install.sh"
 
-  config.vm.provision "chef_solo" do |chef|
-    chef.cookbooks_path = ["../cookbooks", "../berks-cookbooks"]
-    chef.roles_path = ["../roles"]
+  config.berkshelf.enabled = true
+  config.berkshelf.berksfile_path = "../Berksfile"
 
-    chef.add_role "messaging_server_base"
-    chef.add_role "messaging_server_rabbitmq"
-    chef.add_role "messaging_server_webapp"
+  config.vm.provision "chef_solo" do |chef| 
+    chef.cookbooks_path = ["../cookbooks"]
+
+    chef.add_recipe "messagingserver::base"
+    chef.add_recipe "messagingserver::rabbitmq"
+    chef.add_recipe "messagingserver::webapp"
 
     chef.json = {
       :name => "messagingserver",
@@ -35,7 +37,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "512"
+    vb.memory = "1024"
   end
 
 end

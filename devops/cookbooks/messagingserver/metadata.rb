@@ -6,6 +6,9 @@ description      ''
 long_description ''
 version          '0.1.0'
 
+depends 'apt'
+depends 'ntp'
+depends 'hostnames'
+depends 'timezone-ii'
 depends 'rabbitmq'
 depends 'java'
-

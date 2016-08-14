@@ -1,8 +1,19 @@
 #
 # Cookbook Name:: messagingserver
-# Recipe:: default
+# Recipe:: webapp
 #
 
+# setup oracle jdk8
+node.default["java"]["install_flavor"] = "oracle"
+node.default["java"]["jdk_version"] = "8"
+node.default["java"]["oracle"]["accept_oracle_download_terms"] = true
+include_recipe "java"
+
+# default webapp -> rabbitmq connection credentials
+node.default["messagingserver"]["rabbitmq_username"] = "trustedclient"
+node.default["messagingserver"]["rabbitmq_password"] = "trustedclient"
+
+# create application home, log and bin directory
 directory "#{node['messagingserver']['home']}" do
   action :create
 end
@@ -38,15 +49,17 @@ template "/etc/init.d/messagingserver" do
 	})
 end
 
+# define messagingserver service
 service "messagingserver" do
   supports :start => true, :stop => true
   action :nothing
 end
 
+# start messagingserver service
 bash "start service" do
-      user "root"
-      code <<-EOH
-      sudo service messagingserver start
-      EOH
-    end
+  user "root"
+  code <<-EOH
+  sudo service messagingserver start
+  EOH
+end
 
