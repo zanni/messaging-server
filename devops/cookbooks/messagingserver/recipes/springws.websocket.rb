@@ -36,8 +36,8 @@ template "/etc/init.d/#{name}" do
   mode '077'
   variables({
    :name => "#{name}",
-   :commande => '#{node["messagingserver"]["bin"]}/#{name}.jar --messagingserver.etcd=#{node["messagingserver"]["bin"]} --messagingserver.memcached.host=#{node["messagingserver"]["memcached_host"]} --messagingserver.memcached.port=#{node["messagingserver"]["memcached_port"]}',
-   :log => "messagingserver.log"
+   :commande => "#{node['messagingserver']['bin']}/#{name}.jar --messagingserver.webapp.host=\"#{node['messagingserver']['webapp_host']}\" --messagingserver.etcd=\"#{node['messagingserver']['etcd']}\" --messagingserver.memcached.host=\"#{node['messagingserver']['memcached_host']}\" --messagingserver.memcached.port=\"#{node['messagingserver']['memcached_port']}\"",
+   :log => "#{name}.log"
   })
 end
 
