@@ -1,2 +1,11 @@
+engines:
+  pmd:
+    enabled: true
+    channel: "beta"
+
+ratings:
+  paths:
+  - "**.java"
+
 exclude_paths:
 - "backend-rabbitmq/src/main/resources/public/stomp.js"
