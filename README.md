@@ -1,5 +1,5 @@
 # Messaging Server 
-[![Build Status](https://travis-ci.org/zanni/messaging-server.svg?branch=master)](https://travis-ci.org/zanni/messaging-server)
+[![Build Status](https://travis-ci.org/zanni/messaging-server.svg?branch=master)](https://travis-ci.org/zanni/messaging-server) [![Code Climate](https://codeclimate.com/github/zanni/messaging-server/badges/gpa.svg)](https://codeclimate.com/github/zanni/messaging-server)
 
 WebRTC compliant signal exchange implementations based on HTTP and SockJS
 
