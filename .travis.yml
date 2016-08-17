@@ -2,4 +2,4 @@ language: java
 jdk:
   - oraclejdk8
 sudo: false
-script: cd backend-rabbitmq && mvn clean install
+script: cd backend-rabbitmq && mvn clean package && cd ../backend-springws && mvn clean package

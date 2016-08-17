@@ -1,0 +1,2 @@
+exclude_paths:
+- "backend-rabbitmq/src/main/resources/public/stomp.js"
