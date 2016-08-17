@@ -42,7 +42,6 @@ public class RabbitMQAuthController {
 	public String user(@RequestParam(value = "username", required = false) String username,
 			@RequestParam(value = "password", required = false) String password, HttpServletRequest request,
 			HttpServletResponse response) {
-
 		if (activeSessionService.exists(username)) {
 			return "allow anonymous";
 		} else {
@@ -52,7 +51,8 @@ public class RabbitMQAuthController {
 	}
 
 	/**
-	 * authorization on vhost (not used in this application as one vhost is used)
+	 * authorization on vhost (not used in this application as one vhost is
+	 * used)
 	 * 
 	 * GET - /auth/user
 	 * 

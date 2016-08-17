@@ -45,9 +45,21 @@ node.default["rabbitmq"]["enabled_users"] = [{
 			:rights => [
 				{
 					:vhost => "/",
-  					:conf => "^queue-*",
-  					:write => "^$",
-  					:read => "^queue-*"
+  					:conf => ".*",
+  					:write => ".*",
+  					:read => ".*"
+				}
+			]
+		}, {
+			:name => "guest",
+			:password => "guest",
+			:tag => "administrator",
+			:rights => [
+				{
+					:vhost => "/",
+  					:conf => ".*",
+  					:write => ".*",
+  					:read => ".*"
 				}
 			]
 		}]

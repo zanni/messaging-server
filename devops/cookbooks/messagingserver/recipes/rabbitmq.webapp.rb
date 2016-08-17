@@ -34,7 +34,7 @@ end
 
 # download jar
 remote_file "#{node['messagingserver']['bin']}/RabbitMQMessagingServer.jar" do
-  source "#{node['messagingserver']['bin_download_url']}"
+  source "#{node['messagingserver']['rabbitmq_webapp_bin_download_url']}"
 end
 
 # create upstart service

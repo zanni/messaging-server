@@ -47,7 +47,7 @@ public class ActiveSessionService implements IActiveSessionService {
 
 		// create activesession domain object
 		// dummy find available rabbit node
-		String listeningAddress = "http://" + rabbitmqHost + ":15674/stomp";
+		String listeningAddress = "ws://" + rabbitmqHost + ":15674/ws";
 		// gen random based listeningKey
 		UUID randomKey = UUID.randomUUID();
 		String listeningKey = "queue" + "." + userId + "." + randomKey.toString();
@@ -120,8 +120,19 @@ public class ActiveSessionService implements IActiveSessionService {
 
 	}
 
-	private String getUserIdFromQueueName(String queueName) {
-		return queueName.split("\\.")[1];
+	/**
+	 * find userId from queue name
+	 * 
+	 * @param queueName
+	 * @return
+	 * @throws ActiveSessionServiceException
+	 */
+	private String getUserIdFromQueueName(String queueName) throws ActiveSessionServiceException {
+		try {
+			return queueName.split("\\.")[1];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new ActiveSessionServiceException("invalid queue name");
+		}
 	}
 
 }

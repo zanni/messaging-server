@@ -1,8 +1,8 @@
-backend-rabbitmq/.settings
-backend-rabbitmq/target
-backend-rabbitmq/.classpath
-backend-rabbitmq/.project
+.settings
+target
+.classpath
+.project
+.vagrant
 conf
 devops/berks-cookbooks
 devops/Berksfile.lock
-devops/env-dev/.vagrant

@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<!DOCTYPE tsung SYSTEM "tsung-1.0.dtd">
+<tsung loglevel="debug" version="1.0" dumptraffic="true">
+
+  <!-- Client side setup -->
+  <clients>
+    <client host="localhost" use_controller_vm="true" maxusers="1"/>
+  </clients>
+  
+  <!-- Server side setup -->
+<servers>
+  <server host="192.168.33.1" port="8080" type="tcp"></server>
+</servers>
+
+  <!-- to start os monitoring (cpu, network, memory). Use an erlang
+  agent on the remote machine or SNMP. erlang is the default --> 
+  <monitoring>
+    <monitor host="myserver" type="snmp"></monitor>
+  </monitoring>
+  
+  <load>
+  <!-- several arrival phases can be set: for each phase, you can set
+  the mean inter-arrival time between new clients and the phase
+  duration -->
+   <arrivalphase phase="1" duration="10" unit="minute">
+     <users interarrival="2" unit="second"></users>
+   </arrivalphase>
+  </load>
+
+
+  <!-- start a session for a http user. the probability is the
+  frequency of this type os session. The sum of all session's
+  probabilities must be 100 -->
+
+ <sessions>
+  <session name="http-example" probability="100" type="ts_http">
+
+    <!-- full url with server name, this overrides the "server" config value -->
+    <transaction name="connect">
+      <request subst="true">
+        <dyn_variable name="listeningKey" jsonpath="listeningKey"/>
+        <dyn_variable name="listeningAddress" jsonpath="listeningAddress"/>
+        <dyn_variable name="userId" jsonpath="userId"/>
+        <http url="/connect" method="POST" version="1.1"
+              contents="userId=%%ts_user_server:get_unique_id%%">
+        </http>
+     </request>
+   </transaction>
+
+   <change_type new_type="ts_websocket" host="192.168.33.10" port="15674" server_type="tcp"  restore="true" store="true" bidi="true"/>
+
+
+    <!-- open web socket with generated url -->
+    <request subst="true">
+        <websocket type="connect" path="/ws?encoding=text"></websocket>
+    </request>
+   
+
+    <!-- sockjs messages -->
+    <!-- <request subst="true">
+        <websocket type="message"  frame="text">["{\"message\":\"LOGIN %%_userId%% %%_listeningKey%%\"}"]</websocket>
+    </request>
+
+     <thinktime min="5" max="6" random="true"></thinktime> -->
+
+    <!-- <request subst="true">
+        <websocket type="message">["{\"user\":\"%%_userId%%\",\"message\":\"SUBSCRIBE durable:false exclusive:true id:%%ts_user_server:get_unique_id%% destination:/queue/%%_listeningKey%%\"}"]</websocket>
+    </request> -->
+     <!-- <request subst="true">
+        <websocket type="message" frame="text" >["{\"user\":\"%%_userId%%\",\"message\":\"JOIN room%%_userId%%\",\"channel\":\"Lobby\"}"]</websocket>
+    </request>
+ 
+     <thinktime min="120" max="180" random="true"></thinktime> -->
+
+    <!-- <request subst="true">
+        <websocket type="message" frame="text" >["{\"message\":\"SUBSCRIBE durable:false exclusive:true id:%%ts_user_server:get_unique_id%% destination:/queue/%%_listeningKey%%\"}"]</websocket>
+    </request>  -->
+
+    <request subst="true">
+        <websocket type="message" frame="text" ack="no_ack">CONNECT\nlogin:%%_userId%%\npasscode:%%_listeningKey%%\nhost:/\naccept-version:1.1,1.0\n\n\0</websocket>
+    </request>
+
+     <!-- wait a little bit -->
+    <thinktime min="10" max="30" random="true"></thinktime>
+    
+    <request subst="true">
+        <websocket type="message" frame="text">SUBSCRIBE\nauto-delete:true\ndurable:false\nexclusive:true\nid:sub-0\ndestination:/queue/%%_listeningKey%%\n\n\0</websocket>
+    </request> 
+
+
+    <!-- <request subst="true">
+        <websocket type="message" frame="text" >["{\"user\":\"%%userId%%\",\"message\":\"MSG hello there\",\"channel\":\"room%%_id1%%\"}"]</websocket>
+    </request> -->
+
+    <!-- <thinktime min="10" max="30" random="true"></thinktime> -->
+
+    <!-- <request subst="true">
+        <websocket type="message" frame="text" >["{\"user\":\"test%%_id1%%\",\"message\":\"LOGOUT\",\"channel\":\"Lobby\"}"]</websocket>
+    </request> -->
+
+    <!-- close ws -->
+    <!-- <request>
+        <websocket type="close"></websocket>
+    </request> -->
+
+
+  <change_type new_type="ts_http" host="192.168.33.1" port="8080" server_type="tcp" store="true"/>
+
+   <request subst="true">
+      <http url="/disconnect" method="POST" version="1.1"
+            contents="queueName=%%_listeningKey%%">
+      </http>
+   </request>
+
+
+   
+        
+  </session>
+ </sessions>
+</tsung>
