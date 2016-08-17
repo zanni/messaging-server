@@ -14,7 +14,7 @@ The following lines should be executed in a SHELL env in order to setup demo env
 
 ```sh
 git clone https://github.com/zanni/messaging-server.git
-cd messaging-server/devops/env-demo
+cd messaging-server/devops/env-springws-demo
 vagrant up
 ```
 
@@ -42,7 +42,7 @@ The following lines should be executed in a SHELL env in order to setup dev env.
 
 ```sh
 git clone https://github.com/zanni/messaging-server.git
-cd messaging-server/devops/env-dev
+cd messaging-server/devops/env-springws-dev
 vagrant up
 ```
 
