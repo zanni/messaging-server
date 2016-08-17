@@ -27,9 +27,7 @@ Another websocket node can be launched on host using these commands (require Jav
 ```sh
 wget https://github.com/zanni/messaging-server/releases/download/v0.0.1-SNAPSHOT/MessagingServerSpringWSWebsocketService-0.0.1-SNAPSHOT.jar
 java -jar MessagingServerSpringWSWebsocketService-0.0.1-SNAPSHOT.jar --messagingserver.webapp.host="192.168.33.1" --messagingserver.etcd="http://192.168.33.10:4001,http://192.168.33.10001,http://192.168.33.10:6001" --messagingserver.memcached.host="192.168.33.10" --messagingserver.memcached.port="11211"
-vagran
-
-
+```
 
 ## Dev env
 
