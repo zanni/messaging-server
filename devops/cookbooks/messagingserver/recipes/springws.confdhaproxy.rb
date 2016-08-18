@@ -13,9 +13,20 @@ directory "/usr/local/etc/haproxy" do
   action :create
 end
 
+path = "/usr/local/etc/haproxy/haproxy.cfg"
+
+template "#{path}" do
+  source "haproxy.cfg.erb"
+  action :create
+  
+end
+
+
 include_recipe "haproxy::install_package"
 
-path = "/usr/local/etc/haproxy/haproxy.cfg"
+
+
+
 
 node.default['confd']['config']['backend'] = 'etcd'
 node.default['confd']['config']['nodes'] = ["192.168.33.10:4001","192.168.33.10:5001","192.168.33.10:6001"]
