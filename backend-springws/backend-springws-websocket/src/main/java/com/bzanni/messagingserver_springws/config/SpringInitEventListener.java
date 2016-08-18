@@ -2,8 +2,6 @@ package com.bzanni.messagingserver_springws.config;
 
 import javax.annotation.Resource;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
 import org.springframework.context.ApplicationListener;
@@ -20,8 +18,6 @@ import com.bzanni.messagingserver_springws.etcd.EtcdBinding;
 @Component
 public class SpringInitEventListener implements ApplicationListener<EmbeddedServletContainerInitializedEvent> {
 
-	private static final Logger LOGGER = LogManager.getLogger(SpringInitEventListener.class);
-
 	@Value("${messagingserver.webapp.host}")
 	private String webappHost;
 
@@ -30,9 +26,9 @@ public class SpringInitEventListener implements ApplicationListener<EmbeddedServ
 
 	@Override
 	public void onApplicationEvent(final EmbeddedServletContainerInitializedEvent event) {
-
-		etcdBinding.initWebsocketScheduledConf(webappHost,
-				Integer.toString(event.getEmbeddedServletContainer().getPort()));
+		String port = Integer.toString(event.getEmbeddedServletContainer().getPort());
+		String name = webappHost.replace("\\.", "") + "-" + port;
+		etcdBinding.initWebsocketScheduledConf(name, webappHost, port);
 
 	}
 

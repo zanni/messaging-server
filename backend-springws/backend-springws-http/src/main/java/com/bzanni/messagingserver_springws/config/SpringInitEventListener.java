@@ -36,8 +36,9 @@ public class SpringInitEventListener implements ApplicationListener<EmbeddedServ
 	public void onApplicationEvent(final EmbeddedServletContainerInitializedEvent event) {
 
 		try {
-			etcdBinding.initHttpScheduledConf(webappHost,
-					Integer.toString(event.getEmbeddedServletContainer().getPort()));
+			String port = Integer.toString(event.getEmbeddedServletContainer().getPort());
+			String name = webappHost.replace(".", "-") + "-" + port;
+			etcdBinding.initHttpScheduledConf(name, webappHost, port);
 
 			etcdBinding.initWaitForChange();
 

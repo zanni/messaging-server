@@ -1,0 +1,57 @@
+global
+    log 127.0.0.1 local0 info
+    log 127.0.0.1 local0 notice
+    log-tag haproxy
+    maxconn 20000
+    chroot /var/lib/haproxy
+    user haproxy
+    group haproxy
+    stats socket /var/run/haproxy.stat level admin
+
+
+defaults
+    mode http
+    log global
+
+    # Setting options
+    option httplog
+    option logasap
+    option dontlognull              # Disable logging of null connections as these can pollute the logs
+    option redispatch               # Enable session redistribution in case of connection failure
+    option tcp-smart-accept         # Performance tweak, saving one ACK packet during the accept sequence
+    option tcp-smart-connect        # Performance tweak, saving of one ACK packet during the connect sequence
+    option forwardfor
+    option http-server-close
+
+    # Setting timeouts
+    timeout connect           5s
+    timeout client           20s
+    timeout server           15s
+    timeout http-keep-alive   1s
+    timeout check             2s
+
+    # Slowloris protection
+    timeout http-request     10s     # Slowloris protection
+    timeout tarpit            1m     # tarpit hold time
+    timeout queue             1m
+    backlog                10000
+
+listen stats *:1936
+    stats enable
+    stats uri /
+    stats hide-version
+    stats auth someuser:password
+
+frontend localnodes
+    bind 0.0.0.0:8080
+    mode http
+    default_backend nodes
+
+backend nodes
+    mode http
+    balance roundrobin
+
+    option forwardfor
+    {{range gets "/messagingserver_springws/http_service/*"}}
+       server {{base .Key}} {{.Value}} check
+{{end}} 

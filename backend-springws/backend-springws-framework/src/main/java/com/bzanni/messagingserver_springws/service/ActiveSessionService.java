@@ -131,7 +131,7 @@ public class ActiveSessionService implements IActiveSessionService {
 	}
 
 	private String getWebsocketService() {
-		List<String> activeWebsocketNode = new ArrayList<String>(etcdBinding.getActiveWebsocketNode().keySet());
+		List<String> activeWebsocketNode = new ArrayList<String>(etcdBinding.getActiveWebsocketNode().values());
 
 		if (activeWebsocketNode.isEmpty()) {
 			return null;

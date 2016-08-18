@@ -25,6 +25,7 @@ Vagrant.configure(2) do |config|
 
     chef.add_recipe "memcached"
     chef.add_recipe "messagingserver::springws.etcd"
+    chef.add_recipe "messagingserver::springws.confdhaproxy"    
     chef.add_recipe "messagingserver::springws.http"
     chef.add_recipe "messagingserver::springws.websocket"    
 
@@ -37,7 +38,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "1024"
+    vb.memory = "2048"
   end
 
 end

@@ -14,18 +14,18 @@ import java.util.concurrent.TimeoutException;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+
 import mousio.client.promises.ResponsePromise.IsSimplePromiseResponseHandler;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.responses.EtcdAuthenticationException;
 import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 /**
  * etcd bindings helper:
@@ -45,8 +45,7 @@ import org.springframework.stereotype.Component;
 @Configuration
 public class EtcdBinding {
 
-	private static final Logger LOGGER = LogManager
-			.getLogger(EtcdBinding.class);
+	private static final Logger LOGGER = LogManager.getLogger(EtcdBinding.class);
 
 	private static final String APP_NAME = "messagingserver_springws";
 
@@ -68,6 +67,10 @@ public class EtcdBinding {
 	private Map<String, String> activeWebsocketNode;
 
 	private String currentKey;
+	
+	private String currentValue;
+	
+	private String currentName;
 
 	@PostConstruct
 	public void init() {
@@ -83,8 +86,7 @@ public class EtcdBinding {
 		}
 		etcd = new EtcdClient(list.toArray(new URI[list.size()]));
 
-		LOGGER.info("Successfully connected to etcd (cluster: "
-				+ etcd.version().getCluster() + ", server: "
+		LOGGER.info("Successfully connected to etcd (cluster: " + etcd.version().getCluster() + ", server: "
 				+ etcd.version().getServer() + ")");
 
 		try {
@@ -92,17 +94,14 @@ public class EtcdBinding {
 			etcd.putDir(APP_NAME + "/" + WS_SERVICE_NAME).send().getNow();
 
 			// init active nodes
-			EtcdKeysResponse etcdKeysResponse = etcd
-					.getDir(APP_NAME + "/" + WS_SERVICE_NAME).recursive()
-					.send().get();
+			EtcdKeysResponse etcdKeysResponse = etcd.getDir(APP_NAME + "/" + WS_SERVICE_NAME).recursive().send().get();
 			etcdKeysResponse.node.nodes.forEach(action -> {
 				LOGGER.debug("Init active node: " + action.key);
 				String key = action.key;
 				// remove etcd prefix
-					key = key.replace("/" + EtcdBinding.APP_NAME + "/"
-							+ EtcdBinding.WS_SERVICE_NAME + "/", "");
-					activeWebsocketNode.put(key, action.value);
-				});
+				key = key.replace("/" + EtcdBinding.APP_NAME + "/" + EtcdBinding.WS_SERVICE_NAME + "/", "");
+				activeWebsocketNode.put(key, action.value);
+			});
 		} catch (IOException e) {
 			LOGGER.error(e);
 		} catch (EtcdException e) {
@@ -123,8 +122,7 @@ public class EtcdBinding {
 	 * @throws EtcdAuthenticationException
 	 * @throws TimeoutException
 	 */
-	public void removeConf() throws IOException, EtcdException,
-			EtcdAuthenticationException, TimeoutException {
+	public void removeConf() throws IOException, EtcdException, EtcdAuthenticationException, TimeoutException {
 		if (etcd != null) {
 			etcd.delete(currentKey).send().get();
 		}
@@ -138,8 +136,8 @@ public class EtcdBinding {
 	 * @param port
 	 * @param ttl
 	 */
-	public void initHttpScheduledConf(final String host, final String port) {
-		this.initScheduledConf(HTTP_SERVICE_NAME, host, port, HTTP_SERVICE_TTL_SECOND);
+	public void initHttpScheduledConf(final String name, final String host, final String port) {
+		this.initScheduledConf(HTTP_SERVICE_NAME, name, host, port, HTTP_SERVICE_TTL_SECOND);
 	}
 
 	/**
@@ -150,8 +148,8 @@ public class EtcdBinding {
 	 * @param port
 	 * @param ttl
 	 */
-	public void initWebsocketScheduledConf(final String host, final String port) {
-		this.initScheduledConf(WS_SERVICE_NAME, host, port, WS_SERVICE_TTL_SECOND);
+	public void initWebsocketScheduledConf(final String name, final String host, final String port) {
+		this.initScheduledConf(WS_SERVICE_NAME, name, host, port, WS_SERVICE_TTL_SECOND);
 	}
 
 	/**
@@ -162,24 +160,21 @@ public class EtcdBinding {
 	public void initWaitForChange() throws IOException {
 		if (etcd != null) {
 			// Wait for next change on foo
-			promise = etcd.getDir(APP_NAME + "/" + WS_SERVICE_NAME).recursive()
-					.waitForChange().send();
-			IsSimplePromiseResponseHandler<EtcdKeysResponse> callback = (
-					listener) -> {
+			promise = etcd.getDir(APP_NAME + "/" + WS_SERVICE_NAME).recursive().waitForChange().send();
+			IsSimplePromiseResponseHandler<EtcdKeysResponse> callback = (listener) -> {
 
 				try {
 					EtcdKeysResponse etcdKeysResponse = listener.get();
 
 					String key = etcdKeysResponse.node.key;
 					// remove etcd prefix
-					key = key.replace("/" + EtcdBinding.APP_NAME + "/"
-							+ EtcdBinding.WS_SERVICE_NAME + "/", "");
+					key = key.replace("/" + EtcdBinding.APP_NAME + "/" + EtcdBinding.WS_SERVICE_NAME + "/", "");
 					String value = etcdKeysResponse.node.value;
+					key += value;
 					if (activeWebsocketNode.get(key) == null && value != null) {
 						LOGGER.debug("Add active node: " + key);
 						activeWebsocketNode.put(key, value);
-					} else if (activeWebsocketNode.get(key) != null
-							&& value == null) {
+					} else if (activeWebsocketNode.get(key) != null && value == null) {
 						LOGGER.debug("Del active node: " + key);
 						activeWebsocketNode.remove(key);
 					}
@@ -211,33 +206,33 @@ public class EtcdBinding {
 		return new HashMap<String, String>(this.activeWebsocketNode);
 	}
 
-	private void putConf(String serviceType, String host, String port, int ttl)
-			throws IOException, EtcdException, EtcdAuthenticationException,
-			TimeoutException {
+	private void putConf(String serviceType, String name, String host, String port, int ttl)
+			throws IOException, EtcdException, EtcdAuthenticationException, TimeoutException {
 		if (etcd != null) {
-			currentKey = APP_NAME + "/" + serviceType + "/" + host + ":" + port;
-
+			currentKey = APP_NAME + "/" + serviceType + "/" + name;
+			currentValue = host + ":" + port;
 			LOGGER.info("Init self conf node: " + currentKey);
 
-			etcd.put(currentKey, port).ttl(ttl)
+			etcd.put(currentKey, currentValue ).ttl(ttl)
 
-			.send().get();
+					.send().get();
 		}
 	}
 
-	private void refreshConf() throws IOException, EtcdException,
-			EtcdAuthenticationException, TimeoutException {
+	private void refreshConf() throws IOException, EtcdException, EtcdAuthenticationException, TimeoutException {
 		if (etcd != null) {
-			etcd.refresh(currentKey, WS_SERVICE_TTL_SECOND).send().get();
+			// etcd.refresh(currentKey, WS_SERVICE_TTL_SECOND).send().get();
+			etcd.put(currentKey, currentValue).ttl(WS_SERVICE_TTL_SECOND)
+					.send().get();
 		}
 	}
 
-	private void initScheduledConf(final String serviceType, final String host,
-			final String port, final int ttl) {
-
+	private void initScheduledConf(final String serviceType, String name, final String host, final String port,
+			final int ttl) {
+		setCurrentName(name);
 		EtcdBinding conf = this;
 		try {
-			conf.putConf(serviceType, host, port, ttl);
+			conf.putConf(serviceType, name, host, port, ttl);
 		} catch (IOException e) {
 			LOGGER.error(e);
 		} catch (EtcdException e) {
@@ -273,6 +268,14 @@ public class EtcdBinding {
 
 			}, new Date(), (WS_SERVICE_TTL_SECOND - 1) * 1000);
 		}
+	}
+
+	public String getCurrentName() {
+		return currentName;
+	}
+
+	private void setCurrentName(String currentName) {
+		this.currentName = currentName;
 	}
 
 }
