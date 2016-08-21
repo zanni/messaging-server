@@ -4,6 +4,13 @@ Hot upscaling and downscaling of both http and sockjs modules using etcd, confd,
 
 How I stop worrying and love the TTL
 
+Distributed MessagingServer infrastructure example:
+
+<p align="center">
+  <img src="https://github.com/zanni/messaging-server/raw/master/backend-springws/messagingserver_springws.png?raw=true" alt="Messaging server springws backend"/>
+</p>
+
+
 ## Demo env
 
 Following dependencies (with tested versions) are required to launch demo env:
