@@ -36,11 +36,15 @@ public class WebsocketHandshakeHandler implements HandshakeInterceptor {
 		String userId = splitQuery.get("userId");
 		String token = splitQuery.get("token");
 
+		LOGGER.debug("ws handshake: "+userId + " "+token);
 		boolean checkValidity = activeSessionService.checkValidity(userId,
 				token);
 
 		if (!checkValidity) {
 			LOGGER.warn("deny access to: " + userId + " with token: " + token);
+		}
+		else {
+			activeSessionService.ack(token);
 		}
 		arg3.put("userId", userId);
 		arg3.put("token", token);

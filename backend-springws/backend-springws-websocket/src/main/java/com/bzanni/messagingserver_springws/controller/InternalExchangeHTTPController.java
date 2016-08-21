@@ -46,10 +46,18 @@ public class InternalExchangeHTTPController {
 			HttpServletRequest request, HttpServletResponse response)
 			throws ActiveSessionServiceException {
 
+		
 		WebSocketSession read = websocketSessionService.read(message.getTo());
 
 		try {
-			read.sendMessage(new TextMessage(mapper.writeValueAsString(message)));
+			if(read == null){
+				LOGGER.error("Unknown: "+message.getTo());
+			}
+			else {
+				String msg =mapper.writeValueAsString(message);
+				LOGGER.debug("internal read: "+msg);
+				read.sendMessage(new TextMessage(msg));
+			}
 		} catch (JsonProcessingException e) {
 			LOGGER.error(e);
 		} catch (IOException e) {

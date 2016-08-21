@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -126,8 +127,10 @@ public class ActiveSessionService implements IActiveSessionService {
 		String addr = to.getListeningAddress().replace("/ws", "/exchange");
 
 		ResponseEntity<String> postForEntity = restTemplate.postForEntity(addr, message, String.class);
-
-		LOGGER.debug(postForEntity.getStatusCode());
+		if(!HttpStatus.OK.equals(postForEntity.getStatusCode())){
+			LOGGER.error("fail internal exchange :"+ postForEntity.getStatusCode());
+		}
+		
 	}
 
 	private String getWebsocketService() {

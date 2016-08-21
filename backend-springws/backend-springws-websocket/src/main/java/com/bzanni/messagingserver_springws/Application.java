@@ -1,11 +1,17 @@
 package com.bzanni.messagingserver_springws;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.messaging.converter.DefaultContentTypeResolver;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.converter.MessageConverter;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
@@ -35,9 +41,9 @@ public class Application extends SpringBootServletInitializer implements
 
 		registry.addHandler(websocketHandler, "/ws").setAllowedOrigins("*")
 				.addInterceptors(websocketHandshakeHandler).withSockJS();
-		;
+		
 	}
-
+	
 	@Override
 	protected SpringApplicationBuilder configure(
 			SpringApplicationBuilder application) {

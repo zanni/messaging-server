@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!DOCTYPE tsung SYSTEM "tsung-1.0.dtd">
+<tsung loglevel="debug" version="1.0" dumptraffic="true">
+    <!-- Client side setup -->
+    <clients>
+        <client host="localhost" use_controller_vm="true" > </client>
+
+    </clients>
+    <!-- Server side setup -->
+    <servers>
+        <server host="192.168.33.10" port="8080" type="tcp"></server>
+    </servers>
+    <!-- to start os monitoring (cpu, network, memory). Use an erlang
+  agent on the remote machine or SNMP. erlang is the default -->
+    <monitoring>
+        <monitor host="myserver" type="snmp"></monitor>
+    </monitoring>
+    <load>
+        <!-- several arrival phases can be set: for each phase, you can set
+  the mean inter-arrival time between new clients and the phase
+  duration -->
+        <arrivalphase phase="1" duration="10" unit="minute">
+            <users interarrival="0.1" unit="second"></users>
+        </arrivalphase>
+    </load>
+    <!-- start a session for a http user. the probability is the
+  frequency of this type os session. The sum of all session's
+  probabilities must be 100 -->
+    <sessions>
+        <session name="http-example" probability="100" type="ts_http">
+            <!-- full url with server name, this overrides the "server" config value -->
+            <transaction name="connect_http">
+                <request subst="true">
+                    <dyn_variable name="myServer" re=".*http:\/\/(.*)\:.*/ws.*" />
+                    <dyn_variable name="myPort" re=".*http:\/\/.*\:(.*)/ws.*" />
+                    <dyn_variable name="listeningKey" jsonpath="listeningKey" />
+                    <dyn_variable name="listeningAddress" jsonpath="listeningAddress" />
+                    <dyn_variable name="userId" jsonpath="userId" />
+                    <http url="/connect" method="POST" version="1.1" contents="userId=%%ts_user_server:get_really_unique_id%%"></http>
+                </request>
+            </transaction>
+            <change_type new_type="ts_websocket" server_type="tcp" host="localhost" port="54773" store="false" restore="false" bidi="true" />
+            
+            <transaction name="connect_websocket">
+                <request subst="true">
+                    <websocket type="connect" frame="text" path="http://localhost:54773/ws/%%_userId%%/%%_userId%%/websocket?userId=%%_userId%%&amp;token=%%_listeningKey%%"></websocket>
+                </request>
+                <!-- <thinktime value="1" random="true"></thinktime> -->
+                <request subst="true">
+                    <websocket type="message" frame="text" ack="no_ack">["{\"from\":\"%%_userId%%\",\"to\":\"%%_userId%%\",\"content\":\"content\"}"]</websocket>
+                </request>
+                 <!-- <thinktime value="1" random="true"></thinktime> -->
+                 <request>
+                    <websocket type="close"></websocket>
+                </request>
+            </transaction>
+            
+         
+        </session>
+    </sessions>
+</tsung>

@@ -181,17 +181,9 @@ function setupConnection(userId) {
 				};
 				client.onclose = function() {
 					log("Server deconnect, trying to reconnect...");
-					 // make HTTP request to delete session
-                    $.post('/disconnect', {
-                        queueName: pass
-                    }, function(data) {
-                    	setupConnection(userId);
-                    }).fail(function(err) {
-                        error(e);
-                    });
-
-					
-					
+// 					setTimeout(function() {
+// 						setupConnection(userId);
+// 					}, 500);
 				};
 
 				$("#submit").off("click");
@@ -199,17 +191,11 @@ function setupConnection(userId) {
 					e.preventDefault();
 					var toUserId = $("#toUserId").val();
 					var content = $("#content").val();
-					$.post('/exchange', {
-						fromUserId : userId,
-						toUserId : toUserId,
+					client.send(JSON.stringify({
+						from : userId,
+						to : toUserId,
 						content : content
-					}, function(data) {
-						log("message successfully transmitted")
-					}).fail(function(err) {
-						var exp = JSON.parse(err.responseText);
-						error(exp.message)
-
-					});
+					}));
 				});
 
 			}).fail(function(e) {

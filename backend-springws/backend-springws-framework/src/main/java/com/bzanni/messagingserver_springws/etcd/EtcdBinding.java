@@ -67,9 +67,9 @@ public class EtcdBinding {
 	private Map<String, String> activeWebsocketNode;
 
 	private String currentKey;
-	
+
 	private String currentValue;
-	
+
 	private String currentName;
 
 	@PostConstruct
@@ -170,11 +170,11 @@ public class EtcdBinding {
 					// remove etcd prefix
 					key = key.replace("/" + EtcdBinding.APP_NAME + "/" + EtcdBinding.WS_SERVICE_NAME + "/", "");
 					String value = etcdKeysResponse.node.value;
-					key += value;
+					// key += value;
 					if (activeWebsocketNode.get(key) == null && value != null) {
 						LOGGER.debug("Add active node: " + key);
 						activeWebsocketNode.put(key, value);
-					} else if (activeWebsocketNode.get(key) != null && value == null) {
+					} else if (value == null) {
 						LOGGER.debug("Del active node: " + key);
 						activeWebsocketNode.remove(key);
 					}
@@ -213,7 +213,7 @@ public class EtcdBinding {
 			currentValue = host + ":" + port;
 			LOGGER.info("Init self conf node: " + currentKey);
 
-			etcd.put(currentKey, currentValue ).ttl(ttl)
+			etcd.put(currentKey, currentValue).ttl(ttl)
 
 					.send().get();
 		}
@@ -222,8 +222,7 @@ public class EtcdBinding {
 	private void refreshConf() throws IOException, EtcdException, EtcdAuthenticationException, TimeoutException {
 		if (etcd != null) {
 			// etcd.refresh(currentKey, WS_SERVICE_TTL_SECOND).send().get();
-			etcd.put(currentKey, currentValue).ttl(WS_SERVICE_TTL_SECOND)
-					.send().get();
+			etcd.put(currentKey, currentValue).ttl(WS_SERVICE_TTL_SECOND).send().get();
 		}
 	}
 

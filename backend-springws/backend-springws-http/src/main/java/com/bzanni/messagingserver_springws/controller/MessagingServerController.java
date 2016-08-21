@@ -71,40 +71,4 @@ public class MessagingServerController {
 		return session;
 	}
 
-	/**
-	 * Post - /disconnect
-	 * 
-	 * @param userId
-	 * @param request
-	 * @param response
-	 * @throws ActiveSessionServiceException
-	 */
-	@RequestMapping(value = "/disconnect")
-	public void disconnect(@RequestParam(value = "queueName", required = true) String queueName,
-			HttpServletRequest request, HttpServletResponse response) throws ActiveSessionServiceException {
-
-		activeSessionService.delete(queueName);
-
-	}
-
-	/**
-	 * Post - /exchange
-	 * 
-	 * @param fromUserId
-	 * @param toUserId
-	 * @param content
-	 * @param request
-	 * @param response
-	 * @throws ActiveSessionServiceException
-	 */
-	@RequestMapping(value = "/exchange")
-	public void exchange(@RequestParam(value = "fromUserId", required = true) String fromUserId,
-			@RequestParam(value = "toUserId", required = true) String toUserId,
-			@RequestParam(value = "content", required = true) String content, HttpServletRequest request,
-			HttpServletResponse response) throws ActiveSessionServiceException {
-
-		activeSessionService.exchange(fromUserId, toUserId, content);
-
-	}
-
 }
