@@ -74,6 +74,8 @@ Currently, tsung user session implement the following scenario:
 
 Test is programmed to last 10 min, with a new user connecting each 0.1 second
 
+Tsung web GUI: http://localhost:8091/
+
 **Due to tsung limitation of "change_type" configuration (https://github.com/processone/tsung/issues/196), websocket multi-node infrastructure cannot be tested yet**
 
 ## Dev env
