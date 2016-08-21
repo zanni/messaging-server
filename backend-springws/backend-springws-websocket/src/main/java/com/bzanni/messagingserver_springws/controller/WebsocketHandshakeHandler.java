@@ -15,39 +15,38 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
+import com.bzanni.messagingserver_springws.service.ActiveSessionServiceException;
 import com.bzanni.messagingserver_springws.service.IActiveSessionService;
 
 @Service
 public class WebsocketHandshakeHandler implements HandshakeInterceptor {
 
-	private static final Logger LOGGER = LogManager
-			.getLogger(WebsocketHandshakeHandler.class);
+	private static final Logger LOGGER = LogManager.getLogger(WebsocketHandshakeHandler.class);
 
 	@Resource
 	private IActiveSessionService activeSessionService;
 
 	@Override
-	public boolean beforeHandshake(ServerHttpRequest arg0,
-			ServerHttpResponse arg1, WebSocketHandler arg2,
+	public boolean beforeHandshake(ServerHttpRequest arg0, ServerHttpResponse arg1, WebSocketHandler arg2,
 			Map<String, Object> arg3) throws Exception {
-
 		String query = arg0.getURI().getQuery();
 		Map<String, String> splitQuery = splitQuery(query);
 		String userId = splitQuery.get("userId");
 		String token = splitQuery.get("token");
-
-		LOGGER.debug("ws handshake: "+userId + " "+token);
-		boolean checkValidity = activeSessionService.checkValidity(userId,
-				token);
+		boolean checkValidity = activeSessionService.checkValidity(userId, token);
 
 		if (!checkValidity) {
 			LOGGER.warn("deny access to: " + userId + " with token: " + token);
+		} else {
+			try {
+				activeSessionService.ack(userId);
+				arg3.put("userId", userId);
+				arg3.put("token", token);
+			} catch (ActiveSessionServiceException e) {
+				return false;
+			}
 		}
-		else {
-			activeSessionService.ack(token);
-		}
-		arg3.put("userId", userId);
-		arg3.put("token", token);
+
 		return checkValidity;
 	}
 
@@ -59,8 +58,7 @@ public class WebsocketHandshakeHandler implements HandshakeInterceptor {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	private Map<String, String> splitQuery(String query)
-			throws UnsupportedEncodingException {
+	private Map<String, String> splitQuery(String query) throws UnsupportedEncodingException {
 		Map<String, String> query_pairs = new LinkedHashMap<String, String>();
 		String[] pairs = query.split("&");
 		for (String pair : pairs) {
@@ -72,11 +70,10 @@ public class WebsocketHandshakeHandler implements HandshakeInterceptor {
 	}
 
 	@Override
-	public void afterHandshake(ServerHttpRequest request,
-			ServerHttpResponse response, WebSocketHandler wsHandler,
+	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Exception exception) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

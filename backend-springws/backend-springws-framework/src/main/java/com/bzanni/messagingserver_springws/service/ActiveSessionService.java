@@ -21,9 +21,8 @@ import com.bzanni.messagingserver_springws.repository.ActiveSessionRepositoryExc
 import com.bzanni.messagingserver_springws.repository.IActiveSessionRepository;
 
 /**
- * Active session service:
- * - persistence using memcached
- * - 
+ * Active session service: - persistence using memcached -
+ * 
  * @author bzanni
  *
  */
@@ -86,28 +85,25 @@ public class ActiveSessionService implements IActiveSessionService {
 	}
 
 	@Override
-	public void ack(String queueName) throws ActiveSessionServiceException {
+	public void ack(String userId) throws ActiveSessionServiceException {
 		try {
-			String userId = getUserIdFromQueueName(queueName);
 			ActiveSession session = memcachedActiveSessionRepository.read(userId);
 			session.setAcked(true);
 			memcachedActiveSessionRepository.update(session);
-			LOGGER.info("ACK: " + userId);
+			// LOGGER.info("ACK: " + userId);
 		} catch (ActiveSessionRepositoryException e) {
 			throw new ActiveSessionServiceException(e.getMessage());
 		}
 	}
 
 	@Override
-	public void delete(String queueName) throws ActiveSessionServiceException {
+	public void delete(String userId) throws ActiveSessionServiceException {
 		try {
-			String userId = getUserIdFromQueueName(queueName);
 			memcachedActiveSessionRepository.delete(userId);
 			LOGGER.info("DEL: " + userId);
 		} catch (ActiveSessionRepositoryException e) {
 			throw new ActiveSessionServiceException(e.getMessage());
 		}
-
 	}
 
 	@Override
@@ -127,10 +123,9 @@ public class ActiveSessionService implements IActiveSessionService {
 		String addr = to.getListeningAddress().replace("/ws", "/exchange");
 
 		ResponseEntity<String> postForEntity = restTemplate.postForEntity(addr, message, String.class);
-		if(!HttpStatus.OK.equals(postForEntity.getStatusCode())){
-			LOGGER.error("fail internal exchange :"+ postForEntity.getStatusCode());
+		if (!HttpStatus.OK.equals(postForEntity.getStatusCode())) {
+			LOGGER.error("fail internal exchange :" + postForEntity.getStatusCode());
 		}
-		
 	}
 
 	private String getWebsocketService() {
@@ -148,9 +143,4 @@ public class ActiveSessionService implements IActiveSessionService {
 
 		return node;
 	}
-
-	private String getUserIdFromQueueName(String queueName) {
-		return queueName.split("\\.")[1];
-	}
-
 }

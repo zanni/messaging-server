@@ -16,6 +16,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import com.bzanni.messagingserver_springws.domain.Message;
 import com.bzanni.messagingserver_springws.service.ActiveSessionServiceException;
+import com.bzanni.messagingserver_springws.service.IActiveSessionService;
 import com.bzanni.messagingserver_springws.service.WebsocketSessionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,11 +24,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 public class InternalExchangeHTTPController {
 
-	private static final Logger LOGGER = LogManager
-			.getLogger(InternalExchangeHTTPController.class);
-	
+	private static final Logger LOGGER = LogManager.getLogger(InternalExchangeHTTPController.class);
+
 	@Resource
 	private WebsocketSessionService websocketSessionService;
+
+	@Resource
+	private IActiveSessionService activeSessionService;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -42,20 +45,15 @@ public class InternalExchangeHTTPController {
 	 * @throws ActiveSessionServiceException
 	 */
 	@RequestMapping(value = "/exchange")
-	public void exchange(@RequestBody Message message,
-			HttpServletRequest request, HttpServletResponse response)
+	public void exchange(@RequestBody Message message, HttpServletRequest request, HttpServletResponse response)
 			throws ActiveSessionServiceException {
-
-		
 		WebSocketSession read = websocketSessionService.read(message.getTo());
-
 		try {
-			if(read == null){
-				LOGGER.error("Unknown: "+message.getTo());
-			}
-			else {
-				String msg =mapper.writeValueAsString(message);
-				LOGGER.debug("internal read: "+msg);
+			if (read == null) {
+				activeSessionService.delete(message.getTo());
+				LOGGER.error("Unknown: " + message.getTo());
+			} else {
+				String msg = mapper.writeValueAsString(message);
 				read.sendMessage(new TextMessage(msg));
 			}
 		} catch (JsonProcessingException e) {
@@ -63,6 +61,5 @@ public class InternalExchangeHTTPController {
 		} catch (IOException e) {
 			LOGGER.error(e);
 		}
-
 	}
 }

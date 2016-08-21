@@ -11,8 +11,7 @@ public interface IActiveSessionService {
 	 * @return
 	 * @throws ActiveSessionServiceException
 	 */
-	public ActiveSession create(String userId)
-			throws ActiveSessionServiceException;
+	public ActiveSession create(String userId) throws ActiveSessionServiceException;
 
 	/**
 	 * Return true if user is linked to an active session
@@ -35,18 +34,17 @@ public interface IActiveSessionService {
 	 * @param queueName
 	 * @throws ActiveSessionServiceException
 	 */
-	public void ack(String queueName) throws ActiveSessionServiceException;
+	public void ack(String userId) throws ActiveSessionServiceException;
 
 	/**
 	 * @param userId
 	 * @throws ActiveSessionServiceException
 	 */
-	public void delete(String queueName) throws ActiveSessionServiceException;
+	public void delete(String userId) throws ActiveSessionServiceException;
 
 	/**
 	 * @param userId
 	 * @throws ActiveSessionServiceException
 	 */
-	public void exchange(String from, String to, String content)
-			throws ActiveSessionServiceException;
+	public void exchange(String from, String to, String content) throws ActiveSessionServiceException;
 }

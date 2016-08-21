@@ -26,12 +26,11 @@ Those prototypes permits communications 1 to 4
 **Workflow**:
 - User inits connection by sending HTTP POST request to "/connect" endpoint, providing {userId}. A session is generated with a random {listeningKey} and an available {listeningAddress}.
 - User then attempts to connect to SockJS "/ws" endpoint using session's data given in previous HTTP response. If an active session matches {userId, listeningAddress, listeningKey}, SockJS connection is opened
-- User exchanges messages with others connected users by sending HTTP POST requestS to "/exchange" enpoint. Messages are relayed by pushing on corresponding users queues
-- User disconnects by either sending HTTP POST request to "/disconnect" endpoint or broking SockJS connection
+- User exchanges messages with others connected users by sending JSON messages through SockJS connection. Messages are relayed between SockJS nodes using internal HTTP POST
 - SockJS connection/disconnection events are monitored. When a connection is opened, corresponding session is acked, when a connection is broken, corresponding session is deleted
 
 ## Implementations
 
 This project provide two differents implementations of this design:
-- [backend-rabbitmq](https://github.com/zanni/messaging-server/tree/master/backend-rabbitmq): Spring http webapp + RabbitMQ + In-Memory session 
-- [backend-springws](https://github.com/zanni/messaging-server/tree/master/backend-springws): Spring http webapp + Spring SockJS webapp + Memcached session + Etcd (live SockJS cluster upscaling/downscaling)
+- [backend-rabbitmq](https://github.com/zanni/messaging-server/tree/master/backend-rabbitmq): Spring http webapp + RabbitMQ + In-Memory session (this implementation came first )
+- [backend-springws](https://github.com/zanni/messaging-server/tree/master/backend-springws): Spring http webapp + Spring SockJS webapp + Memcached session + Etcd (hot SockJS/HTTP cluster upscaling/downscaling)
