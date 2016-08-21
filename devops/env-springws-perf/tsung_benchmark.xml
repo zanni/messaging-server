@@ -20,7 +20,7 @@
   the mean inter-arrival time between new clients and the phase
   duration -->
         <arrivalphase phase="1" duration="10" unit="minute">
-            <users interarrival="0.1" unit="second"></users>
+            <users interarrival="0.01" unit="second"></users>
         </arrivalphase>
     </load>
     <!-- start a session for a http user. the probability is the
@@ -39,11 +39,11 @@
                     <http url="/connect" method="POST" version="1.1" contents="userId=%%ts_user_server:get_really_unique_id%%"></http>
                 </request>
             </transaction>
-            <change_type new_type="ts_websocket" server_type="tcp" host="localhost" port="54773" store="false" restore="false" bidi="true" />
+            <change_type new_type="ts_websocket" server_type="tcp" host="192.168.33.10" port="8081" store="false" restore="false" bidi="true" />
             
             <transaction name="connect_websocket">
                 <request subst="true">
-                    <websocket type="connect" frame="text" path="http://localhost:54773/ws/%%_userId%%/%%_userId%%/websocket?userId=%%_userId%%&amp;token=%%_listeningKey%%"></websocket>
+                    <websocket type="connect" frame="text" path="http://192.168.33.10:8081/ws/%%_userId%%/%%_userId%%/websocket?userId=%%_userId%%&amp;token=%%_listeningKey%%"></websocket>
                 </request>
                 <!-- <thinktime value="1" random="true"></thinktime> -->
                 <request subst="true">

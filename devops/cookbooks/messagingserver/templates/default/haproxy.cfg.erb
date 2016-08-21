@@ -42,13 +42,19 @@ listen stats *:1936
     stats hide-version
     stats auth someuser:password
 
-frontend localnodes
+frontend http
     bind 0.0.0.0:8080
     mode http
-    default_backend nodes
+    default_backend http_nodes
 
-backend nodes
+frontend websocket
+    bind 0.0.0.0:8081
+    default_backend websocket_nodes
+
+backend http_nodes
     mode http
     balance roundrobin
-
     option forwardfor
+
+backend websocket_nodes
+    balance roundrobin

@@ -40,7 +40,7 @@ include_recipe "confd::default"
 confd_template "#{path}" do
   template_source "haproxy.tmpl.erb"
   prefix "/"
-  keys ["/messagingserver_springws/http_service"]
+  keys ["/messagingserver_springws/http_service", "/messagingserver_springws/ws_service"]
 
   check_command "sudo /usr/sbin/haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg"
   reload_command "sudo /usr/sbin/haproxy -f /usr/local/etc/haproxy/haproxy.cfg -p /var/run/haproxy.pid -D -sf $(cat /var/run/haproxy.pid)"

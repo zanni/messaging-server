@@ -42,16 +42,28 @@ listen stats *:1936
     stats hide-version
     stats auth someuser:password
 
-frontend localnodes
+frontend http
     bind 0.0.0.0:8080
     mode http
-    default_backend nodes
+    default_backend http_nodes
 
-backend nodes
+frontend websocket
+    bind 0.0.0.0:8081
+    mode tcp
+    default_backend websocket_nodes
+
+backend http_nodes
     mode http
     balance roundrobin
-
     option forwardfor
     {{range gets "/messagingserver_springws/http_service/*"}}
-       server {{base .Key}} {{.Value}} check
-{{end}} 
+           server http{{base .Key}} {{.Value}} check
+    {{end}} 
+
+backend websocket_nodes
+    mode tcp
+    balance roundrobin
+    option forwardfor
+    {{range gets "/messagingserver_springws/ws_service/*"}}
+           server websocket{{base .Key}} {{.Value}} check
+    {{end}} 

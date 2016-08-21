@@ -22,7 +22,7 @@ directory "#{node['messagingserver']['bin']}" do
   action :create
 end
 
-name = "springws_websocket"
+name = "springws_ws"
 # download jar
 remote_file "#{node['messagingserver']['bin']}/#{name}.jar" do
   source "#{node['messagingserver']['springws_websocket_bin_download_url']}"
