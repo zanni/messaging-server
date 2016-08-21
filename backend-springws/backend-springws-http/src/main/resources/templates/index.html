@@ -73,8 +73,10 @@ div code {
  * - open STOMP connection using session's data
  * - subscribe to queue
  */
-function setupConnection(userId) {
-	
+function setupConnection(userId, retry) {
+	if(!retry){
+		retry = 0;
+	}
 	var date = function(){
 		pad = function (str, len) {
 		    return (new Array(len+1).join("0") + str).slice(-len);
@@ -141,8 +143,8 @@ function setupConnection(userId) {
 					userId = prompt("Please enter your userId");
 					if (userId) {
 						setTimeout(function() {
-							setupConnection(userId);
-						}, 500);
+							setupConnection(userId, retry++);
+						}, retry * 500);
 					}
 
 				});
@@ -181,9 +183,9 @@ function setupConnection(userId) {
 				};
 				client.onclose = function() {
 					log("Server deconnect, trying to reconnect...");
-// 					setTimeout(function() {
-// 						setupConnection(userId);
-// 					}, 500);
+					setTimeout(function() {
+						setupConnection(userId, retry++);
+					}, 500);
 				};
 
 				$("#submit").off("click");

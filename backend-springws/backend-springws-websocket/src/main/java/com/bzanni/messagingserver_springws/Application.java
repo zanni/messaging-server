@@ -1,17 +1,11 @@
 package com.bzanni.messagingserver_springws;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
-import org.springframework.messaging.converter.DefaultContentTypeResolver;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.converter.MessageConverter;
-import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
@@ -27,8 +21,7 @@ import com.bzanni.messagingserver_springws.controller.WebsocketHandshakeHandler;
  */
 @SpringBootApplication
 @EnableWebSocket
-public class Application extends SpringBootServletInitializer implements
-		WebSocketConfigurer {
+public class Application extends SpringBootServletInitializer implements WebSocketConfigurer {
 
 	@Resource
 	private WebsocketHandler websocketHandler;
@@ -39,14 +32,13 @@ public class Application extends SpringBootServletInitializer implements
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 
-		registry.addHandler(websocketHandler, "/ws").setAllowedOrigins("*")
-				.addInterceptors(websocketHandshakeHandler).withSockJS();
-		
+		registry.addHandler(websocketHandler, "/ws").setAllowedOrigins("*").addInterceptors(websocketHandshakeHandler)
+				.withSockJS();
+
 	}
-	
+
 	@Override
-	protected SpringApplicationBuilder configure(
-			SpringApplicationBuilder application) {
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(Application.class);
 	}
 

@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ import net.spy.memcached.MemcachedClient;
 @Service
 public class MemcachedActiveSessionRepository implements IActiveSessionRepository {
 
+	private static final Logger LOGGER = LogManager.getLogger(MemcachedActiveSessionRepository.class);
+
 	private static final int ACTIVE_SESSION_TTL_SECOND = 10 * 60;
 
 	@Value("${messagingserver.memcached.host}")
@@ -36,8 +40,7 @@ public class MemcachedActiveSessionRepository implements IActiveSessionRepositor
 		try {
 			client = new MemcachedClient(new InetSocketAddress(memcachedHost, memcachedPort));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error(e);
 		}
 	}
 
@@ -90,7 +93,7 @@ public class MemcachedActiveSessionRepository implements IActiveSessionRepositor
 
 	@Override
 	public void delete(String userId) throws ActiveSessionRepositoryException {
-//		ActiveSession session = this.getKey(userId);
+		// ActiveSession session = this.getKey(userId);
 		// if (session == null) {
 		// throw new ActiveSessionRepositoryException("user not found");
 		// }
